@@ -1,0 +1,23 @@
+name: starter
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: starter-postgres
+    environment:
+      POSTGRES_DB: starter
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - starter_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  starter_postgres_data:

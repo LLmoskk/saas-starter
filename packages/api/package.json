@@ -1,0 +1,16 @@
+{
+  "name": "@starter/api",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@starter/auth": "workspace:*",
+    "@starter/db": "workspace:*",
+    "@orpc/server": "catalog:",
+    "zod": "catalog:",
+    "drizzle-orm": "^0.45.2"
+  }
+}

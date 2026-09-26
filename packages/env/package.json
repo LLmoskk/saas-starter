@@ -1,0 +1,15 @@
+{
+  "name": "@starter/env",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server": "./src/server.ts",
+    "./web": "./src/web.ts",
+    "./load-env": "./src/load-env.ts"
+  },
+  "dependencies": {
+    "@t3-oss/env-core": "^0.13.11",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  }
+}
