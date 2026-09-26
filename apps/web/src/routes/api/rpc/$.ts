@@ -1,8 +1,17 @@
 import { createContext } from "@starter/api/context";
 import { appRouter } from "@starter/api/routers/index";
 import { RPCHandler } from "@orpc/server/fetch";
+import { onError } from "@orpc/server";
+import * as Sentry from "@sentry/tanstackstart-react";
 import { createFileRoute } from "@tanstack/react-router";
-const rpc = new RPCHandler(appRouter);
+const rpc = new RPCHandler(appRouter, {
+  interceptors: [
+    onError((error) => {
+      Sentry.captureException(error);
+      console.error(error);
+    }),
+  ],
+});
 async function handle({ request }: { request: Request }) {
   const result = await rpc.handle(request, {
     prefix: "/api/rpc",

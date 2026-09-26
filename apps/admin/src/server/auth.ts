@@ -9,6 +9,11 @@ export const isAdminEmail = (email: string) =>
   env.ADMIN_EMAILS.split(",")
     .map((x) => x.trim().toLowerCase())
     .includes(email.trim().toLowerCase());
+if (process.env.VERCEL && (!env.ADMIN_BETTER_AUTH_URL || !env.ADMIN_BETTER_AUTH_SECRET)) {
+  throw new Error(
+    "Configure independent ADMIN_BETTER_AUTH_URL and ADMIN_BETTER_AUTH_SECRET before deployment",
+  );
+}
 const baseURL = env.ADMIN_BETTER_AUTH_URL ?? "http://localhost:3002";
 export const adminAuth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg", schema }),
