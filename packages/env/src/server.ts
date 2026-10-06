@@ -1,11 +1,12 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 import { loadEnvFile } from "./load-env";
-if (!process.env.VERCEL) loadEnvFile();
-const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
+import { resolveEnvProfileFromProcess } from "./load-env";
+import { isWorkersRuntime } from "./runtime";
+if (!isWorkersRuntime()) loadEnvFile(resolveEnvProfileFromProcess());
 export const env = createEnv({
   server: {
-    DATABASE_URL: z.string().min(1),
+    DATABASE_URL: z.string().min(1).optional(),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url(),
     GOOGLE_CLIENT_ID: z.string().min(1),
@@ -30,11 +31,7 @@ export const env = createEnv({
     R2_PUBLIC_BASE_URL: z.url(),
     SENTRY_DSN: z.url().optional(),
   },
-  runtimeEnv: {
-    ...process.env,
-    BETTER_AUTH_URL:
-      process.env.BETTER_AUTH_URL ?? (vercelUrl ? `https://${vercelUrl}` : undefined),
-  },
+  runtimeEnv: process.env,
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,
 });

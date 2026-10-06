@@ -1,13 +1,13 @@
-import { loadEnvFile } from "@starter/env/load-env";
+import { loadEnvFile, resolveEnvProfileFromProcess } from "@starter/env/load-env";
 import { paraglideVitePlugin } from "@inlang/paraglide-js";
-import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
-import { nitro } from "nitro/vite";
+import { cloudflare } from "@cloudflare/vite-plugin";
 import { defineConfig } from "vite";
-loadEnvFile("local", import.meta.dirname);
-export default defineConfig(({ command }) => ({
+loadEnvFile(resolveEnvProfileFromProcess(), import.meta.dirname);
+export default defineConfig(({ command, isPreview }) => ({
   server: { port: 3001 },
   resolve: { tsconfigPaths: true },
   plugins: [
@@ -18,9 +18,30 @@ export default defineConfig(({ command }) => ({
     }),
     tailwindcss(),
     tanstackStart(),
-    ...sentryTanstackStart({ errorHandler: (error) => console.warn("[sentry]", error) }),
-    nitro(),
+    ...(process.env.SENTRY_AUTH_TOKEN
+      ? [
+          sentryVitePlugin({
+            errorHandler: (error) => console.warn("[sentry]", error),
+            sourcemaps: { filesToDeleteAfterUpload: ["./dist/**/*.map"] },
+          }),
+        ]
+      : []),
+    ...(command === "build" || isPreview ? [cloudflare({ viteEnvironment: { name: "ssr" } })] : []),
     viteReact({ compiler: true }),
   ],
-  ...(command === "build" ? { ssr: { noExternal: true } } : {}),
+  ...(command === "build"
+    ? {
+        build: { sourcemap: process.env.SENTRY_AUTH_TOKEN ? "hidden" : false },
+        environments: {
+          ssr: { build: { sourcemap: process.env.SENTRY_AUTH_TOKEN ? "hidden" : false } },
+        },
+        ssr: {
+          noExternal: true,
+          resolve: {
+            conditions: ["workerd", "worker", "browser"],
+            mainFields: ["browser", "module", "main"],
+          },
+        },
+      }
+    : {}),
 }));

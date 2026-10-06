@@ -2,19 +2,20 @@ packages:
   - apps/*
   - packages/*
 allowBuilds:
-  '@sentry/cli': false
+  "@sentry/cli": false
   esbuild: true
+  workerd: true
   sharp: true
 catalog:
   dotenv: ^17.4.2
-  zod: ^4.4.3
+  zod: ^4.5.4
   typescript: ^7.0.2
-  '@types/node': ^26.5.0
+  "@types/node": ^26.5.0
   react: ^19.2.8
   react-dom: ^19.2.8
-  '@types/react': ^19.2.17
-  '@types/react-dom': ^19.2.3
-  '@orpc/server': ^1.14.12
-  '@orpc/client': ^1.14.12
+  "@types/react": ^19.2.17
+  "@types/react-dom": ^19.2.3
+  "@orpc/server": ^1.14.12
+  "@orpc/client": ^1.14.12
   better-auth: 1.7.3
   resend: ^6.27.0

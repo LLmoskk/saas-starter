@@ -4,7 +4,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./schema/*": "./src/schema/*.ts"
+    "./schema/*": "./src/schema/*.ts",
+    "./worker": "./src/worker.ts"
   },
   "scripts": {
     "db:push": "drizzle-kit push",

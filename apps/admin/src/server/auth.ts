@@ -1,5 +1,6 @@
 import { db } from "@starter/db";
 import * as schema from "@starter/db/schema/auth";
+import { isWorkersRuntime } from "@starter/env/runtime";
 import { env } from "@starter/env/server";
 import { APIError } from "better-auth/api";
 import { betterAuth } from "better-auth";
@@ -9,7 +10,7 @@ export const isAdminEmail = (email: string) =>
   env.ADMIN_EMAILS.split(",")
     .map((x) => x.trim().toLowerCase())
     .includes(email.trim().toLowerCase());
-if (process.env.VERCEL && (!env.ADMIN_BETTER_AUTH_URL || !env.ADMIN_BETTER_AUTH_SECRET)) {
+if (isWorkersRuntime() && (!env.ADMIN_BETTER_AUTH_URL || !env.ADMIN_BETTER_AUTH_SECRET)) {
   throw new Error(
     "Configure independent ADMIN_BETTER_AUTH_URL and ADMIN_BETTER_AUTH_SECRET before deployment",
   );

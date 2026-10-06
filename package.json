@@ -1,11 +1,11 @@
 {
   "name": "saas-starter",
   "private": true,
-  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "type": "module",
   "scripts": {
     "dev": "pnpm --parallel --filter web --filter admin dev",
     "build": "turbo run build",
@@ -14,7 +14,13 @@
     "db:studio": "pnpm --dir packages/db db:studio",
     "db:start": "pnpm --dir packages/db db:start",
     "db:stop": "pnpm --dir packages/db db:stop",
-    "check": "oxlint && oxfmt --check"
+    "check": "oxlint && oxfmt --check",
+    "env:production": "node scripts/cloudflare.mjs sync prod",
+    "env:preview": "node scripts/cloudflare.mjs sync preview",
+    "deploy:prod": "node scripts/cloudflare.mjs deploy prod",
+    "deploy:preview": "node scripts/cloudflare.mjs deploy preview",
+    "db:push:prod": "STARTER_ENV=prod pnpm db:push",
+    "db:push:preview": "STARTER_ENV=preview pnpm db:push"
   },
   "devDependencies": {
     "@starter/config": "workspace:*",
@@ -23,8 +29,7 @@
     "oxlint": "^1.82.0",
     "tsx": "^4.23.1",
     "turbo": "^2.10.12",
-    "typescript": "catalog:",
-    "vercel": "^59.11.7"
+    "typescript": "catalog:"
   },
   "engines": {
     "node": "24.x"

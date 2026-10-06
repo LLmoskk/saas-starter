@@ -4,10 +4,10 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "env.local", "env.prod", ".env*"],
-      "outputs": ["dist/**", ".output/**", ".vercel/output/**"],
-      "env": ["SENTRY_ORG", "SENTRY_PROJECT"],
-      "passThroughEnv": ["SENTRY_AUTH_TOKEN", "VERCEL_GIT_COMMIT_SHA"]
+      "inputs": ["$TURBO_DEFAULT$", "env.local", "env.prod", "env.preview", ".env*"],
+      "outputs": ["dist/**"],
+      "env": ["STARTER_ENV", "CLOUDFLARE_ENV", "SENTRY_ORG", "SENTRY_PROJECT"],
+      "passThroughEnv": ["SENTRY_AUTH_TOKEN", "SKIP_ENV_VALIDATION"]
     },
     "lint": {
       "dependsOn": ["^lint"]

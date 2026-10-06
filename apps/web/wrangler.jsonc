@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "saas-starter-web",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-10-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true,
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "00000000000000000000000000000000",
+      "localConnectionString": "postgresql://postgres:password@localhost:5433/starter",
+    },
+  ],
+  "env": {
+    "preview": {
+      "name": "saas-starter-web-preview",
+      "hyperdrive": [
+        {
+          "binding": "HYPERDRIVE",
+          "id": "11111111111111111111111111111111",
+          "localConnectionString": "postgresql://postgres:password@localhost:5433/starter",
+        },
+      ],
+    },
+  },
+}

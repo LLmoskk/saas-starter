@@ -17,11 +17,14 @@ local.db-*
 # Environment variables (secrets — never commit)
 env.local
 env.prod
+env.preview
+.dev.vars*
 .env
 .env*.local
 .env*
 !env.local.example
 !env.prod.example
+!env.preview.example
 
 # IDEs and editors
 .vscode/*

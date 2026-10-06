@@ -6,33 +6,33 @@ A personal SaaS starter with separate user and admin apps sharing authentication
 
 ## Tech stack
 
-| Layer | Technology and purpose |
-| --- | --- |
-| Language and runtime | TypeScript, Node.js 24, React 19 |
-| Workspace | pnpm 11 workspaces and Turborepo for two apps and shared packages |
-| Web framework | TanStack Start / Router for file routes, server rendering, and server endpoints |
-| Build and deployment | Vite, Nitro, Vercel; separate deployments for web and admin |
-| Styling | Tailwind CSS 4 |
-| Business APIs | oRPC + TanStack Query for typed APIs and client query caching; Zod for input validation |
-| Authentication | Better Auth with the Drizzle database adapter |
-| Database | PostgreSQL and Drizzle ORM / Kit; Docker Compose runs PostgreSQL 18 locally |
-| Localization and content | Paraglide for Chinese and English messages; React Markdown + remark-gfm for blogs |
-| Code checks | Oxlint, Oxfmt, TypeScript |
-| Environment variables | @t3-oss/env-core + Zod for server and browser configuration |
+| Layer                    | Technology and purpose                                                                  |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| Language and runtime     | TypeScript, Node.js 24, React 19                                                        |
+| Workspace                | pnpm 11 workspaces and Turborepo for two apps and shared packages                       |
+| Web framework            | TanStack Start / Router for file routes, server rendering, and server endpoints         |
+| Build and deployment     | Vite, Cloudflare Workers; separate deployments for web and admin                        |
+| Styling                  | Tailwind CSS 4                                                                          |
+| Business APIs            | oRPC + TanStack Query for typed APIs and client query caching; Zod for input validation |
+| Authentication           | Better Auth with the Drizzle database adapter                                           |
+| Database                 | PostgreSQL and Drizzle ORM / Kit; Docker Compose runs PostgreSQL 18 locally             |
+| Localization and content | Paraglide for Chinese and English messages; React Markdown + remark-gfm for blogs       |
+| Code checks              | Oxlint, Oxfmt, TypeScript                                                               |
+| Environment variables    | @t3-oss/env-core + Zod for server and browser configuration                             |
 
 ## Infrastructure integrations
 
-| Capability | Service / implementation | Current scope |
-| --- | --- | --- |
-| User authentication | Better Auth, Google OAuth | Email sign-up and sign-in, Google sign-in, password reset with session revocation |
-| Bot protection | Cloudflare Turnstile | Validation for email sign-up, sign-in, and password reset, including action and allowed hostnames |
-| Transactional email | Resend | Password reset emails; requires an API key, sender, and verified sending domain |
-| Payments and subscriptions | Waffo Pancake SDK | One-time and subscription checkout, signed webhook verification, event deduplication, order and subscription storage |
-| Image storage | Cloudflare R2, AWS S3 SDK | Admin requests presigned PUT URLs for blog images, served through a public domain |
-| Admin app | Separate Better Auth sessions, email allowlist | Enable or disable users, view payments and subscriptions, manage blogs, view audit logs |
-| Error monitoring | Sentry | Browser and server integration in the web app; requires DSNs; build plugin included |
-| Analytics | Google Analytics 4, Microsoft Clarity | Web app loads traffic and session analytics scripts when configured |
-| Content and SEO | Chinese and English blogs, Markdown, sitemap, robots, basic metadata | Blog publishing and basic search engine configuration |
+| Capability                 | Service / implementation                                             | Current scope                                                                                                        |
+| -------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| User authentication        | Better Auth, Google OAuth                                            | Email sign-up and sign-in, Google sign-in, password reset with session revocation                                    |
+| Bot protection             | Cloudflare Turnstile                                                 | Validation for email sign-up, sign-in, and password reset, including action and allowed hostnames                    |
+| Transactional email        | Resend                                                               | Password reset emails; requires an API key, sender, and verified sending domain                                      |
+| Payments and subscriptions | Waffo Pancake SDK                                                    | One-time and subscription checkout, signed webhook verification, event deduplication, order and subscription storage |
+| Image storage              | Cloudflare R2, AWS S3 SDK                                            | Admin requests presigned PUT URLs for blog images, served through a public domain                                    |
+| Admin app                  | Separate Better Auth sessions, email allowlist                       | Enable or disable users, view payments and subscriptions, manage blogs, view audit logs                              |
+| Error monitoring           | Sentry                                                               | Browser and server integration in the web app; requires DSNs; build plugin included                                  |
+| Analytics                  | Google Analytics 4, Microsoft Clarity                                | Web app loads traffic and session analytics scripts when configured                                                  |
+| Content and SEO            | Chinese and English blogs, Markdown, sitemap, robots, basic metadata | Blog publishing and basic search engine configuration                                                                |
 
 The payment module does not implement credits, quotas, or membership permissions. Each product must grant and revoke entitlements based on confirmed order and subscription states and define its refund rules. Sentry, GA4, and Clarity integrations require their configuration to become active.
 
@@ -90,21 +90,21 @@ Variables prefixed with `VITE_` enter the browser build. Use that prefix only fo
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm dev` | Start both apps |
-| `pnpm build` | Build apps through Turborepo |
-| `pnpm check-types` | Run type checks |
-| `pnpm check` | Run Oxlint and Oxfmt checks |
-| `pnpm db:start` / `pnpm db:stop` | Start / stop the local database |
-| `pnpm db:push` | Sync the current schema to the configured database |
-| `pnpm db:studio` | Open Drizzle Studio |
+| Command                          | Purpose                                            |
+| -------------------------------- | -------------------------------------------------- |
+| `pnpm dev`                       | Start both apps                                    |
+| `pnpm build`                     | Build apps through Turborepo                       |
+| `pnpm check-types`               | Run type checks                                    |
+| `pnpm check`                     | Run Oxlint and Oxfmt checks                        |
+| `pnpm db:start` / `pnpm db:stop` | Start / stop the local database                    |
+| `pnpm db:push`                   | Sync the current schema to the configured database |
+| `pnpm db:studio`                 | Open Drizzle Studio                                |
 
 ## New projects and deployment
 
 1. Start with fresh Git history. Update package names, site name, homepage, app page, and styles.
 2. Use the new project's service accounts, domains, secrets, and storage buckets. Configure products and implement entitlements.
 3. Add legal pages, privacy disclosures, and refund rules. Verify webhook fields and subscription states in the live payment environment before accepting payments.
-4. Create two Vercel projects with root directories `apps/web` and `apps/admin`. Configure each project's required environment variables. Browser variables must exist before the build.
+4. Follow the [Cloudflare deployment guide](docs/cloudflare.md) to configure web/admin Workers, Hyperdrive, and Production / Preview environments. Browser variables must exist before building.
 5. For schema changes, run `pnpm db:push` with the target environment's `DATABASE_URL`. Confirm the database target before running it.
 6. Verify the new domain in Google Search Console and submit `/sitemap.xml`.
