@@ -23,5 +23,14 @@
   "blog.empty": "暂无文章。",
   "app.checkout": "结账",
   "app.subscriptions": "订阅",
-  "app.manageSubscription": "管理订阅"
+  "app.manageSubscription": "管理订阅",
+  "app.currentPlan": "当前套餐",
+  "app.changePlan": "切换套餐",
+  "app.planChangeReady": "查看套餐变更",
+  "app.planChangeDescription": "所选套餐的变更确认页将在新标签页打开，无需再次登录 Waffo。请先核对金额和生效时间，再确认变更。打开页面不会修改订阅或扣款。",
+  "app.checkoutReady": "前往付款",
+  "app.checkoutDescription": "付款页将在新标签页打开。关闭后可以返回这里选择其他商品。",
+  "app.portalDescription": "Waffo 订阅管理将在新标签页打开，请使用付款时的邮箱登录。",
+  "app.continue": "继续前往 Waffo",
+  "app.cancel": "取消"
 }

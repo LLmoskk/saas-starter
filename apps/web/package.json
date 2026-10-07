@@ -23,7 +23,7 @@
     "@tanstack/react-router": "^1.170.41",
     "@tanstack/react-router-ssr-query": "^1.167.1",
     "@tanstack/react-start": "^1.168.60",
-    "@waffo/pancake-ts": "^0.20.0",
+    "@waffo/pancake-ts": "^0.25.0",
     "better-auth": "catalog:",
     "drizzle-orm": "^0.45.2",
     "react": "catalog:",

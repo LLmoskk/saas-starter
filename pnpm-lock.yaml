@@ -199,8 +199,8 @@ importers:
         specifier: ^1.168.60
         version: 1.168.60(crossws@0.4.12(srvx@1.0.4))(esbuild@0.28.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.7)(supports-color@10.2.2)(vite@8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1))
       '@waffo/pancake-ts':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.25.0
+        version: 0.25.0
       better-auth:
         specifier: 'catalog:'
         version: 1.7.3(@cloudflare/workers-types@4.20260702.1)(@opentelemetry/api@1.9.1)(@tanstack/react-start@1.168.60(crossws@0.4.12(srvx@1.0.4))(esbuild@0.28.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.7)(supports-color@10.2.2)(vite@8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1)))(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260702.1)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(kysely@0.29.5)(pg@8.23.0))(pg@8.23.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(solid-js@1.9.15)
@@ -284,8 +284,8 @@ importers:
         specifier: workspace:*
         version: link:../env
       '@waffo/pancake-ts':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.25.0
+        version: 0.25.0
       better-auth:
         specifier: 'catalog:'
         version: 1.7.3(@cloudflare/workers-types@4.20260702.1)(@opentelemetry/api@1.9.1)(@tanstack/react-start@1.168.60(crossws@0.4.12(srvx@1.0.4))(esbuild@0.28.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.7)(supports-color@10.2.2)(vite@8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.1)))(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260702.1)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(kysely@0.29.5)(pg@8.23.0))(pg@8.23.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(solid-js@1.9.15)
@@ -2730,8 +2730,8 @@ packages:
       oxc-transform-react:
         optional: true
 
-  '@waffo/pancake-ts@0.20.0':
-    resolution: {integrity: sha512-FxteqrW+rg2e227jB01IvQi45w6WqleTgEXsX7eyPimSOWbIR2QivDtoktTRBKm12YiN0ZaQKTIkr6T9+TR1eQ==}
+  '@waffo/pancake-ts@0.25.0':
+    resolution: {integrity: sha512-6Zye8je5nhTh2tuu7XBZycqdgg3CwEiS0DLDGvbPZQiSwmraqPBRdy4qMDCJ5IbdZhjRRFlDcNSZSmEr3BE0dg==}
     engines: {node: '>=20.0.0'}
 
   acorn@8.18.0:
@@ -6069,7 +6069,7 @@ snapshots:
     optionalDependencies:
       oxc-transform-react: 0.145.0
 
-  '@waffo/pancake-ts@0.20.0': {}
+  '@waffo/pancake-ts@0.25.0': {}
 
   acorn@8.18.0: {}
 

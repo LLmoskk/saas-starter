@@ -83,6 +83,7 @@ Use [`apps/web/env.local.example`](./apps/web/env.local.example) as the configur
 - Turnstile: set `VITE_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET`, and comma-separated `TURNSTILE_HOSTNAMES`. Configure the app domains in the service dashboard.
 - Resend: set `RESEND_API_KEY` and `RESEND_FROM` with a verified sending domain.
 - Waffo: configure the merchant ID, private key, store ID, success URL, and `WAFFO_ENVIRONMENT`, which accepts `test` or `prod`. `WAFFO_PRODUCTS` is a JSON array with `id`, `name`, and `type`; types are `onetime` or `subscription`. Send webhooks to `https://<web-domain>/api/webhooks/waffo`.
+- See [Waffo integration](docs/waffo.md#english) for authenticated plan changes, webhook subscriptions, and idempotency rules.
 - R2: configure the account ID, access credentials, bucket, and `R2_PUBLIC_BASE_URL`. Allow PUT requests from upload origins in the bucket CORS settings and verify that public image URLs work.
 - Monitoring and analytics: use `VITE_SENTRY_DSN` for the browser and `SENTRY_DSN` for the server. Sentry build configuration uses `SENTRY_ORG`, `SENTRY_PROJECT`, and `SENTRY_AUTH_TOKEN`. GA4 and Clarity use `VITE_GA_MEASUREMENT_ID` and `VITE_CLARITY_PROJECT_ID` respectively.
 

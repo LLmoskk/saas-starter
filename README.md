@@ -83,6 +83,7 @@ pnpm dev
 - Turnstile：设置 `VITE_TURNSTILE_SITE_KEY`、`TURNSTILE_SECRET` 与逗号分隔的 `TURNSTILE_HOSTNAMES`，在服务控制台配置对应域名。
 - Resend：设置 `RESEND_API_KEY`、`RESEND_FROM`，使用已验证的发信域名。
 - Waffo：设置商户 ID、私钥、store ID、成功回跳地址和 `WAFFO_ENVIRONMENT`，支持 `test` / `prod`。`WAFFO_PRODUCTS` 是商品 JSON 数组，包含 `id`、`name`、`type`，类型为 `onetime` 或 `subscription`。Webhook 地址为 `https://<web-domain>/api/webhooks/waffo`。
+- 免登录套餐变更、回调事件和幂等规则见 [Waffo 接入说明](docs/waffo.md)。
 - R2：设置账号 ID、访问密钥、bucket 与 `R2_PUBLIC_BASE_URL`。为 bucket 配置上传来源的 PUT CORS，并确认公共图片地址可访问。
 - 监控与分析：`VITE_SENTRY_DSN` 用于浏览器，`SENTRY_DSN` 用于服务端；Sentry 构建配置使用 `SENTRY_ORG`、`SENTRY_PROJECT`、`SENTRY_AUTH_TOKEN`。GA4 与 Clarity 分别使用 `VITE_GA_MEASUREMENT_ID`、`VITE_CLARITY_PROJECT_ID`。
 

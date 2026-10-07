@@ -23,5 +23,14 @@
   "blog.empty": "No posts yet.",
   "app.checkout": "Checkout",
   "app.subscriptions": "Subscriptions",
-  "app.manageSubscription": "Manage subscription"
+  "app.manageSubscription": "Manage subscription",
+  "app.currentPlan": "Current plan",
+  "app.changePlan": "Change plan",
+  "app.planChangeReady": "Review plan change",
+  "app.planChangeDescription": "Your selected plan change will open in Waffo in a new tab, already signed in. Review the amount due and effective date before confirming. Opening the page does not change your subscription or charge you.",
+  "app.checkoutReady": "Continue to checkout",
+  "app.checkoutDescription": "Checkout will open in a new tab. You can close it and return here to choose another product.",
+  "app.portalDescription": "Subscription management will open in Waffo in a new tab. Sign in with the email used for your purchase.",
+  "app.continue": "Continue to Waffo",
+  "app.cancel": "Cancel"
 }

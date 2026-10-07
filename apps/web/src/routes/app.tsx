@@ -2,6 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
 import { m } from "@/paraglide/messages";
+import {
+  OPEN_SUBSCRIPTION_STATUSES,
+  WAFFO_CONSUMER_PORTAL_URL,
+} from "@starter/auth/payment-contract";
 export const Route = createFileRoute("/app")({ component: App });
 function App() {
   const me = useQuery(orpc.me.queryOptions());
@@ -9,6 +13,10 @@ function App() {
   const payments = useQuery(orpc.payments.queryOptions());
   const subscriptions = useQuery(orpc.subscriptions.queryOptions());
   const checkout = useMutation(orpc.checkout.mutationOptions());
+  const openSubscriptions =
+    subscriptions.data?.filter((item) =>
+      OPEN_SUBSCRIPTION_STATUSES.some((status) => status === item.status),
+    ) ?? [];
   if (me.isError)
     return (
       <main className="panel">
@@ -25,22 +33,63 @@ function App() {
       <section className="panel">
         <h2>{m["app.products"]()}</h2>
         <div className="grid">
-          {products.data?.map((product) => (
-            <div className="panel" key={product.id}>
-              <h3>{product.name}</h3>
-              <button
-                className="button"
-                disabled={checkout.isPending}
-                onClick={async () => {
-                  const result = await checkout.mutateAsync({ productId: product.id });
-                  location.href = result.checkoutUrl;
-                }}
-              >
-                {m["app.checkout"]()}
-              </button>
-            </div>
-          ))}
+          {products.data?.map((product) => {
+            const current =
+              product.type === "subscription" &&
+              openSubscriptions.some((item) => item.productId === product.id);
+            return (
+              <div className="panel" key={product.id}>
+                <h3>{product.name}</h3>
+                <button
+                  className="button"
+                  disabled={
+                    current ||
+                    checkout.isPending ||
+                    (product.type === "subscription" && subscriptions.isPending)
+                  }
+                  onClick={() => checkout.mutate({ productId: product.id })}
+                >
+                  {current
+                    ? m["app.currentPlan"]()
+                    : product.type === "subscription" && openSubscriptions.length
+                      ? m["app.changePlan"]()
+                      : m["app.checkout"]()}
+                </button>
+              </div>
+            );
+          })}
         </div>
+        {checkout.error ? <p role="alert">{checkout.error.message}</p> : null}
+        {checkout.data && !checkout.isPending ? (
+          <section className="panel" aria-live="polite">
+            <h3>
+              {checkout.data.kind === "plan-change"
+                ? m["app.planChangeReady"]()
+                : checkout.data.kind === "portal"
+                  ? m["app.manageSubscription"]()
+                  : m["app.checkoutReady"]()}
+            </h3>
+            <p>
+              {checkout.data.kind === "plan-change"
+                ? m["app.planChangeDescription"]()
+                : checkout.data.kind === "portal"
+                  ? m["app.portalDescription"]()
+                  : m["app.checkoutDescription"]()}
+            </p>
+            <a
+              className="button"
+              href={checkout.data.checkoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => checkout.reset()}
+            >
+              {m["app.continue"]()}
+            </a>
+            <button className="button" onClick={() => checkout.reset()}>
+              {m["app.cancel"]()}
+            </button>
+          </section>
+        ) : null}
       </section>
       <section className="panel">
         <h2>{m["app.subscriptions"]()}</h2>
@@ -57,7 +106,7 @@ function App() {
           </table>
         </div>
         <p>
-          <a href="https://pancake.waffo.ai/consumer/portal/login">
+          <a href={WAFFO_CONSUMER_PORTAL_URL} target="_blank" rel="noopener noreferrer">
             {m["app.manageSubscription"]()}
           </a>
         </p>
