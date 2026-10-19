@@ -6,7 +6,8 @@
     "./server": "./src/server.ts",
     "./web": "./src/web.ts",
     "./load-env": "./src/load-env.ts",
-    "./runtime": "./src/runtime.ts"
+    "./runtime": "./src/runtime.ts",
+    "./worker-env": "./src/worker-env.ts"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",

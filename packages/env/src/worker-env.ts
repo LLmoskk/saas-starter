@@ -1,0 +1,31 @@
+// Shared required bindings; each app declares its own additional required secrets.
+export const WORKER_REQUIRED_SECRET_NAMES = [
+  "BETTER_AUTH_SECRET",
+  "BETTER_AUTH_URL",
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
+  "TURNSTILE_SECRET",
+  "TURNSTILE_HOSTNAMES",
+  "RESEND_API_KEY",
+  "RESEND_FROM",
+  "ADMIN_EMAILS",
+  "WAFFO_MERCHANT_ID",
+  "WAFFO_PRIVATE_KEY",
+  "WAFFO_STORE_ID",
+  "WAFFO_SUCCESS_URL",
+  "WAFFO_PRODUCTS",
+  "R2_ACCOUNT_ID",
+  "R2_ACCESS_KEY_ID",
+  "R2_SECRET_ACCESS_KEY",
+  "R2_BUCKET_NAME",
+  "R2_PUBLIC_BASE_URL",
+] as const;
+
+// Sync allowlist includes optional services; absent values are not uploaded.
+export const WORKER_RUNTIME_SECRET_NAMES = [
+  ...WORKER_REQUIRED_SECRET_NAMES,
+  "ADMIN_BETTER_AUTH_URL",
+  "ADMIN_BETTER_AUTH_SECRET",
+  "WAFFO_ENVIRONMENT",
+  "SENTRY_DSN",
+] as const;

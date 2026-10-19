@@ -18,7 +18,7 @@ export const listBlogPosts = createServerFn({ method: "GET" }).handler(() =>
     .orderBy(desc(blogPost.publishedAt)),
 );
 export const getBlogPost = createServerFn({ method: "GET" })
-  .inputValidator(z.object({ slug: z.string(), locale: z.enum(["en", "zh-CN"]) }))
+  .validator(z.object({ slug: z.string(), locale: z.enum(["en", "zh-CN"]) }))
   .handler(async ({ data }) => {
     const [post] = await db
       .select()

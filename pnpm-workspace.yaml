@@ -6,16 +6,28 @@ allowBuilds:
   esbuild: true
   workerd: true
   sharp: true
+overrides:
+  # Refresh Better Auth's optional Solid peer to a release with patched seroval.
+  "solid-js@<1.9.17": 1.9.17
 catalog:
   dotenv: ^17.4.2
-  zod: ^4.5.4
+  zod: ^4.6.7
   typescript: ^7.0.2
-  "@types/node": ^26.5.0
-  react: ^19.2.8
-  react-dom: ^19.2.8
-  "@types/react": ^19.2.17
-  "@types/react-dom": ^19.2.3
-  "@orpc/server": ^1.14.12
-  "@orpc/client": ^1.14.12
-  better-auth: 1.7.3
-  resend: ^6.27.0
+  "@types/node": ^26.6.5
+  react: ^19.3.1
+  react-dom: ^19.3.1
+  "@types/react": ^19.3.0
+  "@types/react-dom": ^19.3.0
+  "@orpc/server": ^1.15.7
+  "@orpc/client": ^1.15.7
+  better-auth: 1.7.11
+  resend: ^6.34.1
+minimumReleaseAgeExclude:
+  - "@better-auth/core@1.7.11"
+  - "@better-auth/drizzle-adapter@1.7.11"
+  - "@better-auth/kysely-adapter@1.7.11"
+  - "@better-auth/memory-adapter@1.7.11"
+  - "@better-auth/mongo-adapter@1.7.11"
+  - "@better-auth/prisma-adapter@1.7.11"
+  - "@better-auth/telemetry@1.7.11"
+  - better-auth@1.7.11

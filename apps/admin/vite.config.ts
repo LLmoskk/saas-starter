@@ -10,7 +10,9 @@ export default defineConfig(({ command, isPreview }) => ({
   resolve: { tsconfigPaths: true },
   plugins: [
     tailwindcss(),
-    ...(command === "build" || isPreview ? [cloudflare({ viteEnvironment: { name: "ssr" } })] : []),
+    ...(command === "build" || isPreview || process.env.CLOUDFLARE_BUILD === "1"
+      ? [cloudflare({ viteEnvironment: { name: "ssr" }, types: { includeRuntime: false } })]
+      : []),
     tanstackStart(),
     viteReact({ compiler: true }),
   ],

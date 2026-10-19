@@ -15,18 +15,24 @@ export default defineConfig(({ command, isPreview }) => ({
       project: "./project.inlang",
       outdir: "./src/paraglide",
       emitTsDeclarations: true,
+      strategy: ["url", "cookie", "baseLocale"],
     }),
     tailwindcss(),
+    ...(command === "build" || isPreview || process.env.CLOUDFLARE_BUILD === "1"
+      ? [cloudflare({ viteEnvironment: { name: "ssr" }, types: { includeRuntime: false } })]
+      : []),
     tanstackStart(),
     ...(process.env.SENTRY_AUTH_TOKEN
       ? [
           sentryVitePlugin({
             errorHandler: (error) => console.warn("[sentry]", error),
-            sourcemaps: { filesToDeleteAfterUpload: ["./dist/**/*.map"] },
+            sourcemaps: {
+              assets: ["./.cloudflare/output/v0/**/*.map"],
+              filesToDeleteAfterUpload: ["./.cloudflare/output/v0/workers/default/bundle/**/*.map"],
+            },
           }),
         ]
       : []),
-    ...(command === "build" || isPreview ? [cloudflare({ viteEnvironment: { name: "ssr" } })] : []),
     viteReact({ compiler: true }),
   ],
   ...(command === "build"

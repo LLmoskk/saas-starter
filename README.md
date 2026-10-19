@@ -106,6 +106,6 @@ pnpm dev
 1. 使用全新 Git 历史创建项目，修改包名、站点名称、首页、应用页和样式。
 2. 使用新项目自己的服务账号、域名、密钥与存储桶，配置商品和业务权益。
 3. 补齐法律页面、隐私说明与退款规则，在真实支付环境验证 Webhook 字段和订阅状态后再开放支付。
-4. 按 [Cloudflare 部署指南](docs/cloudflare.md) 配置前台与后台的 Worker、Hyperdrive 和 Production / Preview 环境。浏览器变量必须在构建前配置。
+4. 按 [Cloudflare 部署指南](docs/cloudflare.md) 使用新 cf CLI 和 Vite 插件配置前台与后台的 Worker、Hyperdrive 和 Production / Preview 环境。浏览器变量必须在构建前配置。
 5. schema 变更时使用目标环境的 `DATABASE_URL` 执行 `pnpm db:push`，执行前确认数据库目标。
 6. 在 Google Search Console 验证新域名并提交 `/sitemap.xml`。

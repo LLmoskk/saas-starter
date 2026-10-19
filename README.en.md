@@ -106,6 +106,6 @@ Variables prefixed with `VITE_` enter the browser build. Use that prefix only fo
 1. Start with fresh Git history. Update package names, site name, homepage, app page, and styles.
 2. Use the new project's service accounts, domains, secrets, and storage buckets. Configure products and implement entitlements.
 3. Add legal pages, privacy disclosures, and refund rules. Verify webhook fields and subscription states in the live payment environment before accepting payments.
-4. Follow the [Cloudflare deployment guide](docs/cloudflare.md) to configure web/admin Workers, Hyperdrive, and Production / Preview environments. Browser variables must exist before building.
+4. Follow the [Cloudflare deployment guide](docs/cloudflare.md) to configure web/admin Workers, Hyperdrive, and Production / Preview environments with the new cf CLI and Vite plugin. Browser variables must exist before building.
 5. For schema changes, run `pnpm db:push` with the target environment's `DATABASE_URL`. Confirm the database target before running it.
 6. Verify the new domain in Google Search Console and submit `/sitemap.xml`.

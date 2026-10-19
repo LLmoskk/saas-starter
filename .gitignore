@@ -71,3 +71,6 @@ temp
 .pnpm-store
 .wrangler
 .zcode
+
+# Cloudflare CLI Build Output and generated runtime types
+.cloudflare/

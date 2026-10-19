@@ -7,10 +7,10 @@
     "./*": "./src/*.ts"
   },
   "dependencies": {
+    "@orpc/server": "catalog:",
     "@starter/auth": "workspace:*",
     "@starter/db": "workspace:*",
-    "@orpc/server": "catalog:",
-    "zod": "catalog:",
-    "drizzle-orm": "^0.45.2"
+    "drizzle-orm": "^0.45.4",
+    "zod": "catalog:"
   }
 }
