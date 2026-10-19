@@ -481,15 +481,32 @@ interface WebhookEvent {
 
 ### Configuring Webhook URLs via SDK
 
-A store can have multiple webhooks, each delivering to a different channel (`http`, `feishu`, `discord`, `telegram`, `slack`). Register one entry per channel and environment:
+A store can have multiple webhooks, each delivering to a different channel (`http`, `feishu`, `discord`, `telegram`, `slack`). Register one entry per channel and environment.
+
+**Subscribe to every event your handler acts on.** A subscription list that is missing an entry is not an error at subscribe time — the vendor simply never delivers that event, so the state change silently never arrives and your server logs nothing at all. The next project loses hours to exactly this. This template's authoritative list is `WAFFO_WEBHOOK_EVENTS` in `packages/auth/src/payments.ts`; the values are spelled out here only because this guide is SDK-level rather than template-specific.
 
 ```typescript
+// Every event the handler acts on. Omitting one is silent.
+const events = [
+  "order.completed",
+  "subscription.payment_succeeded",
+  "refund.succeeded",
+  "subscription.activated",
+  "subscription.renewed",
+  "subscription.recovered",
+  "subscription.uncanceled",
+  "subscription.plan_changed",
+  "subscription.canceling",
+  "subscription.canceled",
+  "subscription.past_due",
+];
+
 // HTTP — Test environment
 await client.webhooks.add({
   storeId: "store_id",
   channel: "http",
   url: "https://your-domain.com/api/webhooks",
-  events: ["order.completed", "subscription.activated", "subscription.canceled"],
+  events,
   testMode: true,
 });
 
@@ -498,12 +515,12 @@ await client.webhooks.add({
   storeId: "store_id",
   channel: "http",
   url: "https://your-domain.com/api/webhooks",
-  events: ["order.completed", "subscription.activated", "subscription.canceled"],
+  events,
   testMode: false,
 });
 
 // Update / remove
-await client.webhooks.update({ id: "WBH_xxx", events: ["order.completed"] });
+await client.webhooks.update({ id: "WBH_xxx", events });
 await client.webhooks.remove({ id: "WBH_xxx" });
 ```
 

@@ -73,6 +73,28 @@ export async function createCheckout(userId: string, email: string, productId: s
     kind: origin ? ("plan-change" as const) : ("checkout" as const),
   };
 }
+/**
+ * 新项目的 Waffo 店铺应当订阅的全部事件，配置 webhook 时以这里为唯一真相源。
+ *
+ * 与下面的 `processWaffoEvent` 一一对应：少订阅一个，对应事件就永远收不到，典型症状是
+ * 「付款成功但付款记录 / 订阅状态没更新」——而且因为供应商根本没投递，本地连一条日志、
+ * 一个 401 都不会有，很难往配置上想。`docs/waffo.md` 与 `.agents/skills/waffo/SKILL.md`
+ * 都指向这里，不要在别处另抄一份清单。
+ */
+export const WAFFO_WEBHOOK_EVENTS = [
+  WebhookEventType.OrderCompleted,
+  WebhookEventType.SubscriptionPaymentSucceeded,
+  WebhookEventType.RefundSucceeded,
+  WebhookEventType.SubscriptionActivated,
+  WebhookEventType.SubscriptionRenewed,
+  WebhookEventType.SubscriptionRecovered,
+  WebhookEventType.SubscriptionUncanceled,
+  WebhookEventType.SubscriptionPlanChanged,
+  WebhookEventType.SubscriptionCanceling,
+  WebhookEventType.SubscriptionCanceled,
+  WebhookEventType.SubscriptionPastDue,
+] as const;
+
 const subscriptionStates: Record<string, string> = {
   [WebhookEventType.SubscriptionActivated]: "active",
   [WebhookEventType.SubscriptionRenewed]: "active",
