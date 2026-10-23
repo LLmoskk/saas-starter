@@ -1,4 +1,9 @@
 {
+  "updates.available": "有新版本可用",
+  "updates.refresh": "刷新页面",
+  "updates.refreshing": "正在准备刷新…",
+  "updates.later": "稍后",
+  "updates.save_failed": "当前内容未能安全保存，页面暂未刷新，请重试。",
   "site.name": "项目模板",
   "site.description": "新项目的起点。",
   "nav.home": "首页",

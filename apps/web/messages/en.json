@@ -1,4 +1,9 @@
 {
+  "updates.available": "A new version is available",
+  "updates.refresh": "Refresh page",
+  "updates.refreshing": "Preparing to refresh…",
+  "updates.later": "Later",
+  "updates.save_failed": "Your work could not be saved safely. The page has not refreshed. Please try again.",
   "site.name": "Starter",
   "site.description": "A starting point for your next project.",
   "nav.home": "Home",

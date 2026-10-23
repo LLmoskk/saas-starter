@@ -6,11 +6,14 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { defineConfig } from "vite";
+import { buildVersion, buildVersionPlugin } from "./build-version";
 loadEnvFile(resolveEnvProfileFromProcess(), import.meta.dirname);
 export default defineConfig(({ command, isPreview }) => ({
   server: { port: 3001 },
   resolve: { tsconfigPaths: true },
+  define: { "import.meta.env.VITE_BUILD_VERSION": JSON.stringify(buildVersion) },
   plugins: [
+    buildVersionPlugin(buildVersion),
     paraglideVitePlugin({
       project: "./project.inlang",
       outdir: "./src/paraglide",

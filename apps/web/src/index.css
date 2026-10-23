@@ -1,5 +1,13 @@
 @import "tailwindcss";
 :root {
+  --card: white;
+  --foreground: #1d2632;
+  --border: #d6dce4;
+  --primary: #293647;
+  --primary-foreground: white;
+  --primary-hover: #1d2632;
+  --destructive: #a92323;
+  --ring: var(--primary);
   font-family: system-ui, sans-serif;
   color: #1d2632;
   background: #f8fafc;

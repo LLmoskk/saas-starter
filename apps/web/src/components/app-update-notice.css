@@ -1,0 +1,67 @@
+.app-update-notice {
+  position: fixed;
+  z-index: 1001;
+  right: 24px;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--foreground) 12%, transparent);
+}
+.app-update-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.app-update-error {
+  margin: 8px 0 0;
+  color: var(--destructive);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.app-update-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.app-update-actions button {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.app-update-actions .app-update-refresh {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.app-update-refresh:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+.app-update-actions button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.app-update-actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+@media (max-width: 480px) {
+  .app-update-notice {
+    right: 16px;
+    bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}

@@ -9,6 +9,7 @@ import {
 import { getLocale } from "@/paraglide/runtime";
 import { m } from "@/paraglide/messages";
 import type { orpc } from "@/utils/orpc";
+import { AppUpdateNotice } from "@/components/app-update-notice";
 import appCss from "../index.css?url";
 type RouterContext = { orpc: typeof orpc; queryClient: QueryClient };
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -50,6 +51,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
           </nav>
           <Outlet />
         </div>
+        <AppUpdateNotice />
         <Scripts />
       </body>
     </html>
