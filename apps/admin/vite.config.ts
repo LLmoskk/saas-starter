@@ -5,8 +5,13 @@ import viteReact from "@vitejs/plugin-react";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { defineConfig } from "vite";
 loadEnvFile(resolveEnvProfileFromProcess(), import.meta.dirname);
+// 端口以 ADMIN_BETTER_AUTH_URL 为唯一来源，避免 OAuth 回调与 dev server 端口不一致。
+const adminPort = (() => {
+  const url = process.env.ADMIN_BETTER_AUTH_URL;
+  return url ? Number(new URL(url).port) || 3002 : 3002;
+})();
 export default defineConfig(({ command, isPreview }) => ({
-  server: { port: 3002 },
+  server: { port: adminPort },
   resolve: { tsconfigPaths: true },
   plugins: [
     tailwindcss(),

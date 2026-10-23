@@ -16,6 +16,8 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().min(1),
     RESEND_FROM: z.string().min(1),
     ADMIN_EMAILS: z.string().min(1),
+    /** 仅本地开发生效：跳过 Google 登录，直接以该邮箱的已有用户身份进入后台。 */
+    ADMIN_DEV_EMAIL: z.email().optional(),
     ADMIN_BETTER_AUTH_URL: z.url().optional(),
     ADMIN_BETTER_AUTH_SECRET: z.string().min(32).optional(),
     WAFFO_MERCHANT_ID: z.string().min(1),

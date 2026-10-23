@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RPCHandler } from "@orpc/server/fetch";
-import { createContext } from "@/server/orpc";
+import { createContext } from "@/server/router";
 import { adminRouter } from "@/server/router";
 const rpc = new RPCHandler(adminRouter);
 async function handle({ request }: { request: Request }) {

@@ -1,24 +1,21 @@
+import {
+  isAdminEmail,
+  resolveAdminAuthSecret,
+  resolveAdminBaseUrl,
+} from "@starter/admin/server-config";
 import { db } from "@starter/db";
 import * as schema from "@starter/db/schema/auth";
-import { isWorkersRuntime } from "@starter/env/runtime";
 import { env } from "@starter/env/server";
 import { APIError } from "better-auth/api";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
-export const isAdminEmail = (email: string) =>
-  env.ADMIN_EMAILS.split(",")
-    .map((x) => x.trim().toLowerCase())
-    .includes(email.trim().toLowerCase());
-if (isWorkersRuntime() && (!env.ADMIN_BETTER_AUTH_URL || !env.ADMIN_BETTER_AUTH_SECRET)) {
-  throw new Error(
-    "Configure independent ADMIN_BETTER_AUTH_URL and ADMIN_BETTER_AUTH_SECRET before deployment",
-  );
-}
-const baseURL = env.ADMIN_BETTER_AUTH_URL ?? "http://localhost:3002";
+
+const baseURL = resolveAdminBaseUrl();
+
 export const adminAuth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg", schema }),
-  secret: env.ADMIN_BETTER_AUTH_SECRET ?? env.BETTER_AUTH_SECRET,
+  secret: resolveAdminAuthSecret(),
   baseURL,
   trustedOrigins: [baseURL],
   socialProviders: {

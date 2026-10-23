@@ -1,0 +1,289 @@
+/*
+ * @starter/admin 的基础主题：沿用 musictool 的“石墨机架”视觉语言
+ * （深色底、等宽标签、细边框、紧凑状态徽标），但不绑定任何业务色。
+ *
+ * 应用侧在自己的 CSS 里覆盖 `--primary` / `--background` / `--card` / `--border`
+ * / `--radius` 即可换肤；由 accent 派生的 soft/line 色会自动跟随。
+ */
+@source "../ui/**/*.{ts,tsx}";
+
+:root {
+  --background: #0a0d10;
+  --foreground: #e8eef4;
+  --card: #11161b;
+  --card-foreground: var(--foreground);
+  --popover: #11161b;
+  --popover-foreground: var(--foreground);
+  --primary: #34d399;
+  --primary-foreground: #04211a;
+  --secondary: #11161b;
+  --secondary-foreground: var(--primary);
+  --muted: #171d24;
+  --muted-foreground: #93a1b1;
+  --accent: #171d24;
+  --accent-foreground: var(--primary);
+  --destructive: #f87171;
+  --warning: #fbbf24;
+  --border: #232b35;
+  --input: #232b35;
+  --ring: var(--primary);
+  --radius: 8px;
+
+  /* 后台专用的中性台阶 */
+  --raised: #18202a;
+  --dim: #b8c4d1;
+  --faint: #667585;
+  --line-soft: #1b232c;
+  --border-hover: color-mix(in srgb, var(--foreground) 22%, transparent);
+  --primary-soft: color-mix(in srgb, var(--primary) 12%, transparent);
+  --primary-line: color-mix(in srgb, var(--primary) 42%, transparent);
+  --danger-container: #241413;
+  --danger-fill: #2d1715;
+  --danger-line: #5f2b26;
+
+  /* 层次感：与 musictool 一样用内高光 + 深投影，而不是大圆角卡片 */
+  --elevation-hardware: inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+  --elevation-panel: inset 0 1px 0 0 rgb(255 255 255 / 0.05), 0 16px 36px -12px rgb(0 0 0 / 0.6);
+  --elevation-dialog: inset 0 1px 0 0 rgb(255 255 255 / 0.08), 0 24px 48px -12px rgb(0 0 0 / 0.7);
+  --elevation-primary-button: inset 0 1px 0 0 rgb(255 255 255 / 0.28);
+}
+
+@theme inline {
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", sans-serif;
+  --font-mono:
+    "JetBrains Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", "PingFang SC", monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-raised: var(--raised);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-line-soft: var(--line-soft);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-line: var(--primary-line);
+  --color-danger-container: var(--danger-container);
+  --color-danger-fill: var(--danger-fill);
+  --color-danger-line: var(--danger-line);
+
+  /* 圆角统一由 --radius 派生，应用侧改一个值即可整体换圆角。 */
+  --radius-xs: calc(var(--radius) - 5px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 4px);
+
+  --shadow-hardware: var(--elevation-hardware);
+  --shadow-panel: var(--elevation-panel);
+  --shadow-dialog: var(--elevation-dialog);
+  --shadow-primary-button: var(--elevation-primary-button);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    transition: border-color 120ms ease;
+  }
+
+  input:hover,
+  select:hover,
+  textarea:hover,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+  }
+
+  ::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  a {
+    color: inherit;
+  }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      transition-duration: 1ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* 表单/表格上方的小号等宽标签 */
+  .admin-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  .admin-table-wrap {
+    min-width: 0;
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 12px;
+  }
+
+  .admin-table thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .admin-table th {
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+
+  .admin-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    color: var(--foreground);
+    vertical-align: middle;
+  }
+
+  .admin-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .admin-table tbody tr:hover {
+    background: color-mix(in srgb, var(--raised) 55%, transparent);
+  }
+
+  .admin-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .admin-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (min-width: 768px) {
+    .admin-link {
+      min-height: 24px;
+    }
+  }
+
+  .admin-dialog {
+    width: min(28rem, calc(100vw - 2rem));
+    max-width: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--foreground);
+    margin: auto;
+  }
+
+  .admin-dialog::backdrop {
+    background: rgb(0 0 0 / 0.65);
+    backdrop-filter: blur(3px);
+  }
+
+  .admin-dialog-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--card);
+    box-shadow: var(--elevation-dialog);
+    padding: 20px;
+  }
+
+  .admin-toast {
+    border: 1px solid var(--border) !important;
+    background: var(--card) !important;
+    color: var(--foreground) !important;
+    font-family: var(--font-sans) !important;
+    font-size: 12px !important;
+    box-shadow: var(--elevation-panel) !important;
+  }
+
+  .admin-toast-error {
+    border-color: color-mix(in srgb, var(--destructive) 45%, transparent) !important;
+  }
+
+  .admin-toast-action {
+    background: var(--primary-soft) !important;
+    color: var(--primary) !important;
+    border: 1px solid var(--primary-line) !important;
+  }
+}
