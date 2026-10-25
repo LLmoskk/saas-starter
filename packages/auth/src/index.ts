@@ -8,7 +8,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { captcha } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
-import { Resend } from "resend";
+import { sendEmail } from "./email";
 
 const hostnames = env.TURNSTILE_HOSTNAMES.split(",")
   .map((x) => x.trim())
@@ -27,13 +27,12 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url }) => {
-      const { error } = await new Resend(env.RESEND_API_KEY).emails.send({
-        from: env.RESEND_FROM,
+      await sendEmail({
         to: user.email,
         subject: "Reset your password",
+        text: `Reset your password: ${url}`,
         html: `<p><a href="${url}">Reset password</a></p>`,
       });
-      if (error) throw error;
     },
   },
   databaseHooks: {

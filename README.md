@@ -26,7 +26,7 @@
 | ---------- | ------------------------------------------------- | ---------------------------------------------------------------- |
 | 用户认证   | Better Auth、Google OAuth                         | 邮箱注册与登录、Google 登录、找回密码，重置密码后撤销会话        |
 | 防机器人   | Cloudflare Turnstile                              | 邮箱注册、登录和找回密码接口验证，检查 action 与允许的 hostname  |
-| 事务邮件   | Resend                                            | 发送密码重置邮件，需配置 API key、发件人和发信域名               |
+| 事务邮件   | Cloudflare Email Sending                          | 发送密码重置邮件，需配置邮件 API Token、发件人和发信域名         |
 | 支付与订阅 | Waffo Pancake SDK                                 | 一次性商品与订阅结账、Webhook 验签、事件去重、订单与订阅状态存储 |
 | 图片存储   | Cloudflare R2、AWS S3 SDK                         | 后台获取预签名 PUT 地址上传博客图片，通过公共域名访问            |
 | 管理后台   | 独立 Better Auth 会话、管理员邮箱白名单           | 用户启用 / 禁用、支付与订阅记录、博客管理、审计日志              |
@@ -72,7 +72,7 @@ pnpm dev
 
 前台地址为 <http://localhost:3001>，后台地址为 <http://localhost:3002>。本地 PostgreSQL 使用 `localhost:5433`。后台默认也会读取前台的 `env.local`，需要覆盖时可创建 `apps/admin/env.local`。
 
-示例文件中的空值需要替换。当前环境校验要求 Google、Turnstile、Resend、Waffo 和 R2 等服务配置，不能只填写数据库连接就启动完整应用。
+示例文件中的空值需要替换。当前环境校验要求 Google、Turnstile、Waffo 和 R2 等服务配置，不能只填写数据库连接就启动完整应用。
 
 ## 服务配置
 
@@ -81,7 +81,7 @@ pnpm dev
 - 数据库与认证：设置 `DATABASE_URL`、`BETTER_AUTH_URL` 和至少 32 字符的 `BETTER_AUTH_SECRET`。生产后台必须设置独立的 `ADMIN_BETTER_AUTH_URL` 与 `ADMIN_BETTER_AUTH_SECRET`；`ADMIN_EMAILS` 使用逗号分隔。
 - Google OAuth：设置 `GOOGLE_CLIENT_ID`、`GOOGLE_CLIENT_SECRET`，分别登记前台与后台的 `/api/auth/callback/google` 回调地址。
 - Turnstile：设置 `VITE_TURNSTILE_SITE_KEY`、`TURNSTILE_SECRET` 与逗号分隔的 `TURNSTILE_HOSTNAMES`，在服务控制台配置对应域名。
-- Resend：设置 `RESEND_API_KEY`、`RESEND_FROM`，使用已验证的发信域名。
+- Cloudflare Email Sending：设置 `CLOUDFLARE_EMAIL_ACCOUNT_ID`、`CLOUDFLARE_EMAIL_API_TOKEN`、`EMAIL_FROM_ADDRESS` 和 `EMAIL_FROM_NAME`。域名需开通发送，Token 仅授予 Email Sending Write。未配置时密码重置邮件会报错，其余服务可正常启动。
 - Waffo：设置商户 ID、私钥、store ID、成功回跳地址和 `WAFFO_ENVIRONMENT`，支持 `test` / `prod`。`WAFFO_PRODUCTS` 是商品 JSON 数组，包含 `id`、`name`、`type`，类型为 `onetime` 或 `subscription`。Webhook 地址为 `https://<web-domain>/api/webhooks/waffo`。
 - 免登录套餐变更、回调事件和幂等规则见 [Waffo 接入说明](docs/waffo.md)。
 - R2：设置账号 ID、访问密钥、bucket 与 `R2_PUBLIC_BASE_URL`。为 bucket 配置上传来源的 PUT CORS，并确认公共图片地址可访问。

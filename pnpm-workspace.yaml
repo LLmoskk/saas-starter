@@ -21,7 +21,6 @@ catalog:
   "@orpc/server": ^1.15.7
   "@orpc/client": ^1.15.7
   better-auth: 1.7.11
-  resend: ^6.34.1
 minimumReleaseAgeExclude:
   - "@better-auth/core@1.7.11"
   - "@better-auth/drizzle-adapter@1.7.11"

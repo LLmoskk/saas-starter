@@ -13,8 +13,13 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string().min(1),
     TURNSTILE_SECRET: z.string().min(1),
     TURNSTILE_HOSTNAMES: z.string().min(1),
-    RESEND_API_KEY: z.string().min(1),
-    RESEND_FROM: z.string().min(1),
+    CLOUDFLARE_EMAIL_ACCOUNT_ID: z
+      .string()
+      .regex(/^[a-f0-9]{32}$/)
+      .optional(),
+    CLOUDFLARE_EMAIL_API_TOKEN: z.string().min(1).optional(),
+    EMAIL_FROM_ADDRESS: z.email().optional(),
+    EMAIL_FROM_NAME: z.string().min(1).default("Starter"),
     ADMIN_EMAILS: z.string().min(1),
     /** 仅本地开发生效：跳过 Google 登录，直接以该邮箱的已有用户身份进入后台。 */
     ADMIN_DEV_EMAIL: z.email().optional(),

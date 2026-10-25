@@ -11,8 +11,8 @@
     "@starter/env": "workspace:*",
     "@waffo/pancake-ts": "^0.26.0",
     "better-auth": "catalog:",
+    "cloudflare": "^7.3.0",
     "drizzle-orm": "^0.45.4",
-    "resend": "catalog:",
     "zod": "catalog:"
   }
 }
