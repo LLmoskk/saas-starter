@@ -34,5 +34,5 @@ jobs:
     needs: check
     uses: ./.github/workflows/deploy-service.yml
     with:
-      target: admin
+      target: apps/admin
     secrets: inherit

@@ -8,19 +8,14 @@
     "./worker": "./src/worker.ts"
   },
   "scripts": {
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "db:start": "docker compose up -d",
-    "db:stop": "docker compose stop"
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
-    "@starter/env": "workspace:*",
-    "drizzle-orm": "^0.45.4",
-    "pg": "^8.23.1"
+    "drizzle-orm": "^0.45.4"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260702.1",
     "@starter/config": "workspace:*",
-    "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.11",
     "typescript": "catalog:"
   }

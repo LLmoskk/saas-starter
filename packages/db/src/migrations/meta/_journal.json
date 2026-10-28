@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1793204209927,
+      "tag": "0000_chunky_zemo",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793206133569,
+      "tag": "0001_minor_wildside",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793206609564,
+      "tag": "0002_redundant_jazinda",
+      "breakpoints": true
+    }
+  ]
+}

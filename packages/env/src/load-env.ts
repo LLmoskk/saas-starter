@@ -4,13 +4,9 @@ import { resolve } from "node:path";
 
 export function loadEnvFile(profile: "local" | "prod" | "preview" = "local", cwd = process.cwd()) {
   const filename = `env.${profile}`;
-  const path = [
-    resolve(cwd, filename),
-    resolve(cwd, "apps/web", filename),
-    resolve(cwd, "../../apps/web", filename),
-  ].find(existsSync);
-  if (path) config({ path });
-  return path;
+  const path = resolve(cwd, filename);
+  if (existsSync(path)) config({ path });
+  return existsSync(path) ? path : undefined;
 }
 export function resolveEnvProfileFromProcess(): "local" | "prod" | "preview" {
   const profile = process.env.STARTER_ENV;

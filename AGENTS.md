@@ -19,5 +19,5 @@
 
 - 默认由用户手动验收；只有用户明确要求时才运行自动化测试或浏览器自动验收。静态检查按需使用 `pnpm check`、`pnpm check-types`，如实报告执行范围。这一测试约定优先于 ponytail 的自检要求。
 - 开发、构建和发布流程默认不触发真实扣费、AI 生成、发信或生产资源验收。新增付费资源时明确触发点、规格、并发、释放条件和费用上限；执行真实付费验收前取得对应授权。
-- 发布与环境操作先读 `docs/cloudflare.md`。生产通过推送 main 触发 `deploy-web.yml`、`deploy-admin.yml`，按变更独立发布；本机仅发布 Preview。新项目先运行 `pnpm setup:github` 配置 production Environment。schema 不自动同步；配置变更同步 GitHub Secret。用户要求上线后等待本次涉及的 Workflow 成功，再报告已上线。
+- 发布与环境操作先读 `docs/cloudflare.md`。新站放在 `sites/<站点>`，独立 Worker、D1、R2、域名和环境文件；共享业务放 `packages/*`，并在 `apps/admin/src/sites.ts` 注册。生产通过推送 main 触发 `deploy-web.yml`、`deploy-admin.yml`，按变更独立发布；本机只构建与预演。新项目先运行 `pnpm setup:github` 配置 production Environment。schema 不自动同步；配置变更同步 GitHub Secret。用户要求上线后等待本次涉及的 Workflow 成功，再报告已上线。
 - 宣传视频工程、调研下载和临时检查产物放在仓库外；项目实际引用的成品素材才进入仓库。交付说明具体改动、实际检查与未完成项。

@@ -6,7 +6,7 @@ import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { createCheckout, products } from "@starter/auth/payments";
 import { protectedProcedure, publicProcedure } from "../index";
-export const appRouter = {
+export const baseRouter = {
   health: publicProcedure.handler(() => "OK"),
   features: publicProcedure.handler(() => ({
     google: Boolean(services.google),
@@ -36,5 +36,5 @@ export const appRouter = {
       createCheckout(context.session.user.id, context.session.user.email, input.productId),
     ),
 };
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof baseRouter;
 export type AppRouterClient = RouterClient<AppRouter>;

@@ -3,7 +3,7 @@ import { basename, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const errors = [];
-for (const directory of ["apps", "packages"]) {
+for (const directory of ["apps", "packages", "sites"]) {
   for (const path of readdirSync(resolve(root, directory), {
     recursive: true,
     withFileTypes: true,

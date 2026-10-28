@@ -1,0 +1,26 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "ai-video-demo",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-10-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ai-video-demo",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "../../packages/db/src/migrations",
+    },
+  ],
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "ai-video-demo-media" }],
+  "workflows": [
+    {
+      "name": "ai-video-demo-generation",
+      "binding": "GENERATION_WORKFLOW",
+      "class_name": "GenerationWorkflow",
+    },
+  ],
+}

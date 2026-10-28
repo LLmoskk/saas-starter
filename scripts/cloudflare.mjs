@@ -1,136 +1,90 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { pathToFileURL } from "node:url";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { parseEnv } from "node:util";
 import { WORKER_RUNTIME_SECRET_NAMES } from "../packages/env/src/worker-env.ts";
 
-const [action, profile, selectedApp] = process.argv.slice(2);
+const [action, profile, target] = process.argv.slice(2);
 if (
-  !["sync", "deploy"].includes(action) ||
-  !["prod", "preview"].includes(profile) ||
-  (selectedApp !== undefined && !["web", "admin"].includes(selectedApp))
-) {
-  throw new Error("Usage: node scripts/cloudflare.mjs <sync|deploy> <prod|preview> [web|admin]");
-}
-if (profile === "prod" && !process.env.GITHUB_ACTIONS) {
-  throw new Error(
-    "Production changes run through GitHub Actions; use Preview for local deployments",
-  );
-}
-const apps = selectedApp ? [selectedApp] : ["web", "admin"];
+  !["deploy", "sync"].includes(action) ||
+  profile !== "prod" ||
+  !target ||
+  !/^(sites\/[a-z0-9-]+|apps\/admin)$/.test(target)
+)
+  throw new Error("Usage: node scripts/cloudflare.mjs <deploy|sync> prod <sites/name|apps/admin>");
+if (!process.env.GITHUB_ACTIONS) throw new Error("Production changes run through GitHub Actions");
+
 const root = resolve(import.meta.dirname, "..");
-const values = parseEnv(readFileSync(resolve(root, `apps/web/env.${profile}`), "utf8"));
-const mode = profile === "preview" ? "preview" : "production";
-const childEnv = { ...process.env, ...values, STARTER_ENV: profile, CLOUDFLARE_BUILD: "1" };
-// Local publishing uses cf OAuth; CI can supply a scoped API token.
-if (!process.env.CI) delete childEnv.CLOUDFLARE_API_TOKEN;
-// The allowlist includes optional secrets without making deployment require them.
-const runtimeSecretNames = new Set(WORKER_RUNTIME_SECRET_NAMES);
+const cwd = resolve(root, target);
+const file = resolve(cwd, "env.prod");
+if (!existsSync(resolve(cwd, "cloudflare.config.ts")) || !existsSync(file))
+  throw new Error(`Missing Cloudflare config or env.prod for ${target}`);
+const values = parseEnv(readFileSync(file, "utf8"));
+const isAdmin = target === "apps/admin";
+const idKey = `${isAdmin ? "ADMIN" : basename(target).toUpperCase().replaceAll("-", "_")}_D1_ID`;
+const required = isAdmin
+  ? ["ADMIN_BETTER_AUTH_SECRET", "ADMIN_BETTER_AUTH_URL", "ADMIN_EMAILS", idKey]
+  : ["BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "SITE_ADMIN_TOKEN", idKey];
+for (const key of required) if (!values[key]) throw new Error(`${target}: missing ${key}`);
+const authUrl = values[isAdmin ? "ADMIN_BETTER_AUTH_URL" : "BETTER_AUTH_URL"];
+if (new URL(authUrl).protocol !== "https:")
+  throw new Error(`${target}: production auth URL must use HTTPS`);
+if (!/^[a-f0-9-]{36}$/.test(values[idKey]) || /^0{8}-/.test(values[idKey]))
+  throw new Error(`${target}: configure an actual D1 database ID`);
+const childEnv = { ...process.env, ...values, STARTER_ENV: "prod", CLOUDFLARE_BUILD: "1" };
+const runtime = new Set(WORKER_RUNTIME_SECRET_NAMES);
 const secrets = Object.fromEntries(
-  Object.entries(values).filter(([name, value]) => value && runtimeSecretNames.has(name)),
+  Object.entries(values).filter(([key, value]) => runtime.has(key) && value),
 );
-for (const key of ["BETTER_AUTH_URL", "ADMIN_BETTER_AUTH_URL", "ADMIN_BETTER_AUTH_SECRET"]) {
-  if (!values[key]) throw new Error(`Missing ${key} in env.${profile}`);
-}
-for (const key of ["BETTER_AUTH_URL", "ADMIN_BETTER_AUTH_URL"]) {
-  if (new URL(values[key]).protocol !== "https:") throw new Error(`${key} must use HTTPS`);
-}
-function run(args, cwd, input) {
-  const result = spawnSync("pnpm", args, {
-    cwd,
-    env: childEnv,
-    input,
-    encoding: "utf8",
-    stdio: input === undefined ? "inherit" : ["pipe", "inherit", "inherit"],
-  });
+const temporary = mkdtempSync(join(tmpdir(), "video-cf-"));
+function run(args) {
+  const result = spawnSync("pnpm", args, { cwd, env: childEnv, stdio: "inherit" });
   if (result.error) throw result.error;
-  if (result.status !== 0) throw new Error(`Cloudflare command failed (${result.status})`);
+  if (result.status !== 0) throw new Error(`${target}: command failed (${result.status})`);
 }
-run(["exec", "tsx", "scripts/check-env.ts"], root);
-const targets = new Map();
-for (const app of apps) {
-  const cwd = resolve(root, `apps/${app}`);
-  const { default: configure } = await import(
-    pathToFileURL(resolve(cwd, "cloudflare.config.ts")).href
-  );
-  const config = await configure({ mode, isPreview: false });
-  const production = await configure({ mode: "production", isPreview: false });
-  const target = config.worker;
-  if (!target.name || (profile === "preview" && target.name === production.worker.name)) {
-    throw new Error(`Configure an independent ${app} ${profile} Worker name`);
-  }
-  const hyperdrive = target.env.HYPERDRIVE;
-  if (!hyperdrive?.id || /^(0{32}|1{32})$/.test(hyperdrive.id)) {
-    throw new Error(
-      `Configure ${app} ${profile} Hyperdrive IDs in cloudflare.config.ts before publishing`,
-    );
-  }
-  if (profile === "preview" && hyperdrive.id === production.worker.env.HYPERDRIVE.id) {
-    throw new Error(`Preview ${app} must use an independent Hyperdrive binding`);
-  }
-  targets.set(app, target);
-}
-const directory = mkdtempSync(join(tmpdir(), "starter-cf-secrets-"));
 try {
-  for (const app of apps) {
-    const cwd = resolve(root, `apps/${app}`);
-    const target = targets.get(app);
-    const file = join(directory, `${app}.json`);
-    if (action === "deploy") {
-      writeFileSync(file, JSON.stringify(secrets), { mode: 0o600 });
-      run(["exec", "vite", "build", "--mode", mode], cwd);
-      if (profile === "prod") {
-        const result = spawnSync(
-          "gh",
-          ["api", `repos/${process.env.GITHUB_REPOSITORY}/branches/main`, "--jq", ".commit.sha"],
-          { cwd: root, encoding: "utf8" },
-        );
-        if (result.error) throw result.error;
-        if (result.status !== 0 || result.stdout.trim() !== process.env.GITHUB_SHA) {
-          throw new Error("Superseded by a newer main commit; no deployment was performed");
-        }
-      }
-      run(
-        [
-          "exec",
-          "cf",
-          "deploy",
-          "--prebuilt",
-          "--mode",
-          mode,
-          "--secrets-file",
-          file,
-          "--provision=false",
-        ],
-        cwd,
-      );
-    } else {
-      const payload = {
+  const secretFile = join(temporary, "secrets.json");
+  if (action === "deploy") {
+    writeFileSync(secretFile, JSON.stringify(secrets), { mode: 0o600 });
+    run(["exec", "cf", "build"]);
+    run([
+      "exec",
+      "cf",
+      "deploy",
+      "--prebuilt",
+      "--mode",
+      "production",
+      "--secrets-file",
+      secretFile,
+      "--provision=false",
+    ]);
+  } else {
+    const { default: configure } = await import(resolve(cwd, "cloudflare.config.ts"));
+    const config = await configure({ mode: "production", isPreview: false });
+    writeFileSync(
+      secretFile,
+      JSON.stringify({
         secrets: Object.fromEntries(
-          Object.entries(secrets).map(([name, text]) => [name, { type: "secret_text", text }]),
+          Object.entries(secrets).map(([key, text]) => [key, { type: "secret_text", text }]),
         ),
-      };
-      writeFileSync(file, JSON.stringify(payload), { mode: 0o600 });
-      run(
-        [
-          "exec",
-          "cf",
-          "workers",
-          "secrets",
-          "bulk",
-          "--worker",
-          target.name,
-          "--mode",
-          mode,
-          "--file",
-          file,
-        ],
-        cwd,
-      );
-    }
+      }),
+      { mode: 0o600 },
+    );
+    run([
+      "exec",
+      "cf",
+      "workers",
+      "secrets",
+      "bulk",
+      "--worker",
+      config.worker.name,
+      "--mode",
+      "production",
+      "--file",
+      secretFile,
+    ]);
   }
 } finally {
-  rmSync(directory, { recursive: true, force: true });
+  rmSync(temporary, { recursive: true, force: true });
 }

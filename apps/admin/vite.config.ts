@@ -10,19 +10,18 @@ const adminPort = (() => {
   const url = process.env.ADMIN_BETTER_AUTH_URL;
   return url ? Number(new URL(url).port) || 3002 : 3002;
 })();
-export default defineConfig(({ command, isPreview }) => ({
+export default defineConfig(({ command }) => ({
   server: { port: adminPort },
   resolve: { tsconfigPaths: true },
   plugins: [
     tailwindcss(),
-    ...(command === "build" || isPreview || process.env.CLOUDFLARE_BUILD === "1"
-      ? [cloudflare({ viteEnvironment: { name: "ssr" }, types: { includeRuntime: false } })]
-      : []),
+    cloudflare({ viteEnvironment: { name: "ssr" }, types: { includeRuntime: false } }),
     tanstackStart(),
     viteReact({ compiler: true }),
   ],
   ...(command === "build"
     ? {
+        environments: { ssr: { build: { rolldownOptions: { external: ["cloudflare:workers"] } } } },
         ssr: {
           noExternal: true,
           resolve: {

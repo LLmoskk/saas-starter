@@ -1,7 +1,6 @@
 import { db } from "@starter/db";
 import { adminAuditEvent } from "@starter/db/schema/admin";
-import { user } from "@starter/db/schema/auth";
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc } from "drizzle-orm";
 
 import { fetchPaged, resolvePageSize } from "../pagination";
 import type { AuditLogSearch } from "../search";
@@ -25,10 +24,9 @@ export async function listAuditEvents(input: AuditLogSearch = {}) {
           after: adminAuditEvent.after,
           requestIp: adminAuditEvent.requestIp,
           createdAt: adminAuditEvent.createdAt,
-          actorEmail: user.email,
+          actorEmail: adminAuditEvent.actorUserId,
         })
         .from(adminAuditEvent)
-        .innerJoin(user, eq(user.id, adminAuditEvent.actorUserId))
         .orderBy(desc(adminAuditEvent.createdAt), desc(adminAuditEvent.id))
         .limit(pageSize)
         .offset((targetPage - 1) * pageSize),

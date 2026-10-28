@@ -1,12 +1,10 @@
-import { isWorkersRuntime } from "@starter/env/runtime";
+import type { D1Database } from "@cloudflare/workers-types";
 import { createDb, runWithDb } from "./index";
 
-export type WorkerEnv = { HYPERDRIVE?: { connectionString: string } };
+export type WorkerEnv = { DB?: D1Database };
 export type WorkerContext = { waitUntil(promise: Promise<unknown>): void };
 
 export function runInWorkerRequest<T>(bindings: WorkerEnv | undefined, fn: () => T): T {
-  if (!isWorkersRuntime()) return fn();
-  const connectionString = bindings?.HYPERDRIVE?.connectionString;
-  if (!connectionString) throw new Error("Configure the HYPERDRIVE binding before deployment");
-  return runWithDb(createDb(connectionString), fn);
+  if (!bindings?.DB) throw new Error("Configure the DB D1 binding before starting the Worker");
+  return runWithDb(createDb(bindings.DB), fn);
 }

@@ -1,5 +1,5 @@
 import { defineAdminConfig } from "@starter/admin/config";
-import { CreditCard, LayoutDashboard, Newspaper, ScrollText, Users } from "lucide-react";
+import { CreditCard, Film, LayoutDashboard, Newspaper, ScrollText, Users } from "lucide-react";
 
 /**
  * 每个后台自己的品牌、导航与文案。通用套件只认这份配置，
@@ -14,6 +14,11 @@ export const adminConfig = defineAdminConfig({
       icon: <LayoutDashboard className="size-4 shrink-0" strokeWidth={1.5} />,
     },
     { to: "/users", label: "用户", icon: <Users className="size-4 shrink-0" strokeWidth={1.5} /> },
+    {
+      to: "/jobs",
+      label: "生成任务",
+      icon: <Film className="size-4 shrink-0" strokeWidth={1.5} />,
+    },
     {
       to: "/payments",
       label: "支付",
@@ -40,5 +45,6 @@ export const adminConfig = defineAdminConfig({
     user_restore: "恢复账户",
     blog_save: "保存文章",
     blog_publish: "发布文章",
+    credits_adjust: "调整积分",
   },
 });

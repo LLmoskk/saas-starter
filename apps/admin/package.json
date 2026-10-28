@@ -7,10 +7,10 @@
     "build": "cf build",
     "serve": "vite preview",
     "check-types": "tsc --noEmit",
-    "dev:workers": "CLOUDFLARE_BUILD=1 cf dev",
-    "deploy:workers": "CLOUDFLARE_BUILD=1 cf deploy",
-    "deploy:dry-run": "CLOUDFLARE_BUILD=1 cf deploy --dry-run",
-    "cf-typegen": "cf workers types --include-runtime=false"
+    "deploy:dry-run": "cf build && cf deploy --prebuilt --dry-run",
+    "cf-typegen": "wrangler types --include-runtime=false",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote"
   },
   "dependencies": {
     "@orpc/client": "catalog:",

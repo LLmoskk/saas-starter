@@ -1,21 +1,15 @@
-name: Deploy Web
+name: Deploy sites
 
 on:
   push:
     branches: [main]
     paths:
-      - "apps/web/**"
+      - "sites/**"
       - "packages/**"
       - "scripts/cloudflare.mjs"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
-      - "tsconfig.json"
-      - "turbo.json"
-      - ".npmrc"
-      - ".oxlintrc.json"
-      - ".oxfmtrc.json"
-      - ".github/workflows/check.yml"
       - ".github/workflows/deploy-web.yml"
       - ".github/workflows/deploy-service.yml"
   workflow_dispatch:
@@ -23,16 +17,46 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: production-web
-  cancel-in-progress: false
-
 jobs:
+  targets:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - id: select
+        env:
+          BEFORE: ${{ github.event.before }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readdirSync, appendFileSync } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          const sites = readdirSync('sites', { withFileTypes: true }).filter(x => x.isDirectory()).map(x => `sites/${x.name}`);
+          let selected = sites;
+          if (process.env.EVENT === 'push' && process.env.BEFORE && !/^0+$/.test(process.env.BEFORE)) {
+            const changed = execFileSync('git', ['diff', '--name-only', process.env.BEFORE, 'HEAD'], { encoding: 'utf8' }).trim().split('\n');
+            const shared = changed.some(x => /^(packages\/|scripts\/cloudflare\.mjs|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|\.github\/workflows\/deploy-)/.test(x));
+            if (!shared) selected = sites.filter(site => changed.some(x => x.startsWith(`${site}/`)));
+          }
+          appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify(selected)}\n`);
+          NODE
   check:
     uses: ./.github/workflows/check.yml
   deploy:
-    needs: check
+    needs: [targets, check]
+    if: needs.targets.outputs.matrix != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.targets.outputs.matrix) }}
+    concurrency:
+      group: production-${{ matrix.target }}
+      cancel-in-progress: false
     uses: ./.github/workflows/deploy-service.yml
     with:
-      target: web
+      target: ${{ matrix.target }}
     secrets: inherit

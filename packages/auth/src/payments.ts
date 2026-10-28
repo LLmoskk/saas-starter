@@ -1,8 +1,10 @@
 import { db } from "@starter/db";
 import { payment, subscription, webhookEvent } from "@starter/db/schema/payment";
 import { user } from "@starter/db/schema/auth";
+import { creditEntry } from "@starter/db/schema/generation";
 import { env, services } from "@starter/env/server";
 import { ChangeTiming, WaffoPancake, WebhookEventType, type WebhookEvent } from "@waffo/pancake-ts";
+import type { BatchItem } from "drizzle-orm/batch";
 import { and, eq, inArray } from "drizzle-orm";
 import { OPEN_SUBSCRIPTION_STATUSES, WAFFO_CONSUMER_PORTAL_URL } from "./payment-contract";
 
@@ -105,20 +107,27 @@ const subscriptionStates: Record<string, string> = {
 };
 export async function processWaffoEvent(event: WebhookEvent) {
   const data = event.data;
-  await db.transaction(async (tx) => {
-    const inserted = await tx
+  const [existing] = await db
+    .select({ id: webhookEvent.id })
+    .from(webhookEvent)
+    .where(eq(webhookEvent.id, event.id))
+    .limit(1);
+  if (existing) return;
+  const userId = data.merchantProvidedBuyerIdentity || data.orderMetadata?.userId;
+  if (!userId) throw new Error(`Webhook ${event.id} has no user identity`);
+  const [buyer] = await db.select({ id: user.id }).from(user).where(eq(user.id, userId)).limit(1);
+  if (!buyer) throw new Error(`Webhook ${event.id} references unknown user`);
+
+  const statements: BatchItem<"sqlite">[] = [
+    db
       .insert(webhookEvent)
       .values({ id: event.id, eventType: event.eventType })
-      .onConflictDoNothing()
-      .returning({ id: webhookEvent.id });
-    if (!inserted.length) return;
-    const userId = data.merchantProvidedBuyerIdentity || data.orderMetadata?.userId;
-    if (!userId) throw new Error(`Webhook ${event.id} has no user identity`);
-    const [buyer] = await tx.select({ id: user.id }).from(user).where(eq(user.id, userId)).limit(1);
-    if (!buyer) throw new Error(`Webhook ${event.id} references unknown user`);
-    const status = subscriptionStates[event.eventType];
-    if (status) {
-      await tx
+      .onConflictDoNothing(),
+  ];
+  const status = subscriptionStates[event.eventType];
+  if (status) {
+    statements.push(
+      db
         .insert(subscription)
         .values({
           orderId: data.orderId,
@@ -137,14 +146,16 @@ export async function processWaffoEvent(event: WebhookEvent) {
             currentPeriodEnd: data.currentPeriodEnd ? new Date(data.currentPeriodEnd) : null,
             updatedAt: new Date(),
           },
-        });
-    }
-    if (
-      event.eventType === WebhookEventType.OrderCompleted ||
-      event.eventType === WebhookEventType.SubscriptionPaymentSucceeded
-    ) {
-      const id = data.paymentId?.trim() || `${event.id}:payment`;
-      await tx
+        }),
+    );
+  }
+  if (
+    event.eventType === WebhookEventType.OrderCompleted ||
+    event.eventType === WebhookEventType.SubscriptionPaymentSucceeded
+  ) {
+    const id = data.paymentId?.trim() || `${event.id}:payment`;
+    statements.push(
+      db
         .insert(payment)
         .values({
           id: crypto.randomUUID(),
@@ -158,13 +169,54 @@ export async function processWaffoEvent(event: WebhookEvent) {
           status: "completed",
           paidAt: data.paymentDate ? new Date(data.paymentDate) : new Date(),
         })
-        .onConflictDoNothing({ target: payment.paymentId });
-    }
-    if (event.eventType === WebhookEventType.RefundSucceeded) {
-      await tx
-        .update(payment)
-        .set({ status: "refunded", updatedAt: new Date() })
-        .where(eq(payment.orderId, data.orderId));
-    }
-  });
+        .onConflictDoNothing({ target: payment.paymentId }),
+    );
+    const purchased = products.find((product) => product.id === data.orderMetadata?.productId);
+    if (purchased?.credits && data.paymentId)
+      statements.push(
+        db
+          .insert(creditEntry)
+          .values({
+            id: `payment:${id}`,
+            userId,
+            amount: purchased.credits,
+            reason: "payment",
+            referenceId: id,
+          })
+          .onConflictDoNothing(),
+      );
+  }
+  if (event.eventType === WebhookEventType.RefundSucceeded) {
+    const fullRefund =
+      data.refundedAmount != null &&
+      data.originalChargedAmount != null &&
+      Number(data.refundedAmount) === Number(data.originalChargedAmount);
+    if (fullRefund)
+      statements.push(
+        db
+          .update(payment)
+          .set({ status: "refunded", updatedAt: new Date() })
+          .where(
+            data.paymentId
+              ? eq(payment.paymentId, data.paymentId)
+              : eq(payment.orderId, data.orderId),
+          ),
+      );
+    const refunded = products.find((product) => product.id === data.orderMetadata?.productId);
+    if (fullRefund && refunded?.credits && data.paymentId)
+      statements.push(
+        db
+          .insert(creditEntry)
+          .values({
+            id: `payment-refund:${data.paymentId}`,
+            userId,
+            amount: -refunded.credits,
+            reason: "payment_refund",
+            referenceId: data.paymentId,
+          })
+          .onConflictDoNothing(),
+      );
+  }
+  // D1 executes a batch atomically; the event row prevents repeated webhook effects.
+  await db.batch(statements as [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]]);
 }

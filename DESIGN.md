@@ -14,7 +14,7 @@
 
 ## 主题
 
-前台颜色事实源为 `apps/web/src/index.css`，后台为 `apps/admin/src/index.css` 与 admin 基础主题。共享 Tailwind 映射位于 `packages/ui/src/styles.css`。
+前台颜色事实源为各站 `sites/<站点>/src/index.css`，后台为 `apps/admin/src/index.css` 与 admin 基础主题。共享 Tailwind 映射位于 `packages/ui/src/styles.css`。
 
 | 角色                         | 用途                           |
 | ---------------------------- | ------------------------------ |

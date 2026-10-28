@@ -1,13 +1,13 @@
 import { ORPCError } from "@orpc/server";
 import { db } from "@starter/db";
 import { session, user } from "@starter/db/schema/auth";
-import { and, count, desc, eq, gt, ilike, isNotNull, isNull, or } from "drizzle-orm";
+import { adminAuditEvent, adminIdempotency } from "@starter/db/schema/admin";
+import { and, count, desc, eq, gt, like, isNotNull, isNull, or } from "drizzle-orm";
+import type { BatchItem } from "drizzle-orm/batch";
 import { z } from "zod";
 
 import { fetchPaged, resolvePageSize } from "../pagination";
 import type { UsersSearch } from "../search";
-import { recordAdminAudit } from "./audit";
-import { runIdempotent } from "./idempotency";
 
 export async function listUsers(input: UsersSearch) {
   const page = input.page ?? 1;
@@ -17,7 +17,7 @@ export async function listUsers(input: UsersSearch) {
   const conditions = [
     input.status === "disabled" ? isNotNull(user.disabledAt) : undefined,
     input.status === "active" ? isNull(user.disabledAt) : undefined,
-    q ? or(ilike(user.email, `%${q}%`), ilike(user.name, `%${q}%`), eq(user.id, q)) : undefined,
+    q ? or(like(user.email, `%${q}%`), like(user.name, `%${q}%`), eq(user.id, q)) : undefined,
   ].filter((condition) => condition !== undefined);
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
@@ -103,63 +103,82 @@ export async function setUserDisabled(input: {
   idempotencyKey: string;
 }) {
   const action = input.disabled ? "user_disable" : "user_restore";
-
-  return db.transaction(async (tx) => {
-    // 先锁目标行，串行化并发写入，保证随后的幂等检查能看到已提交的键。
-    const rows = await tx
-      .select({ disabledAt: user.disabledAt })
-      .from(user)
-      .where(eq(user.id, input.userId))
-      .for("update")
-      .limit(1);
-    const row = rows[0];
-    if (!row) {
-      throw new ORPCError("NOT_FOUND", { message: "未找到该用户" });
-    }
-
-    return runIdempotent(tx, {
+  const [previous] = await db
+    .select({
+      action: adminIdempotency.action,
+      targetId: adminIdempotency.targetId,
+      response: adminIdempotency.response,
+    })
+    .from(adminIdempotency)
+    .where(eq(adminIdempotency.key, input.idempotencyKey))
+    .limit(1);
+  if (previous) {
+    if (previous.action !== action || previous.targetId !== input.userId)
+      throw new ORPCError("CONFLICT", { message: "幂等键已被其他操作占用" });
+    return { replayed: true, response: setUserDisabledResponseSchema.parse(previous.response) };
+  }
+  const [row] = await db
+    .select({ disabledAt: user.disabledAt })
+    .from(user)
+    .where(eq(user.id, input.userId))
+    .limit(1);
+  if (!row) throw new ORPCError("NOT_FOUND", { message: "未找到该用户" });
+  const before = { disabled: row.disabledAt != null };
+  const changed = before.disabled !== input.disabled;
+  const [sessions] =
+    input.disabled && changed
+      ? await db.select({ total: count() }).from(session).where(eq(session.userId, input.userId))
+      : [{ total: 0 }];
+  const response = {
+    userId: input.userId,
+    disabled: input.disabled,
+    changed,
+    sessionsRevoked: sessions?.total ?? 0,
+  };
+  const statements: BatchItem<"sqlite">[] = [
+    db.insert(adminIdempotency).values({
       key: input.idempotencyKey,
       action,
       targetId: input.userId,
-      responseSchema: setUserDisabledResponseSchema,
-      run: async () => {
-        const before = { disabled: row.disabledAt != null };
-        const changed = before.disabled !== input.disabled;
-        let sessionsRevoked = 0;
-
-        if (changed) {
-          await tx
-            .update(user)
-            .set({ disabledAt: input.disabled ? new Date() : null })
-            .where(eq(user.id, input.userId));
-          if (input.disabled) {
-            const revoked = await tx
-              .delete(session)
-              .where(eq(session.userId, input.userId))
-              .returning({ id: session.id });
-            sessionsRevoked = revoked.length;
-          }
-        }
-
-        await recordAdminAudit(tx, {
-          actorUserId: input.actorUserId,
-          action,
-          targetType: "user",
-          targetId: input.userId,
-          reason: input.reason,
-          before,
-          after: { disabled: input.disabled },
-          idempotencyKey: input.idempotencyKey,
-          requestIp: input.requestIp,
-        });
-
-        return {
-          userId: input.userId,
-          disabled: input.disabled,
-          changed,
-          sessionsRevoked,
-        };
-      },
-    });
-  });
+      response,
+    }),
+    db.insert(adminAuditEvent).values({
+      id: crypto.randomUUID(),
+      actorUserId: input.actorUserId,
+      action,
+      targetType: "user",
+      targetId: input.userId,
+      reason: input.reason?.trim() || null,
+      before,
+      after: { disabled: input.disabled },
+      idempotencyKey: input.idempotencyKey,
+      requestIp: input.requestIp,
+    }),
+  ];
+  if (changed) {
+    statements.push(
+      db
+        .update(user)
+        .set({ disabledAt: input.disabled ? new Date() : null })
+        .where(eq(user.id, input.userId)),
+    );
+    if (input.disabled) statements.push(db.delete(session).where(eq(session.userId, input.userId)));
+  }
+  try {
+    await db.batch(statements as [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]]);
+  } catch (error) {
+    const [replayed] = await db
+      .select({
+        action: adminIdempotency.action,
+        targetId: adminIdempotency.targetId,
+        response: adminIdempotency.response,
+      })
+      .from(adminIdempotency)
+      .where(eq(adminIdempotency.key, input.idempotencyKey))
+      .limit(1);
+    if (replayed?.action === action && replayed.targetId === input.userId)
+      return { replayed: true, response: setUserDisabledResponseSchema.parse(replayed.response) };
+    throw error;
+  }
+  return { replayed: false, response };
 }

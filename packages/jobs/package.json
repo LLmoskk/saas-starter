@@ -1,0 +1,24 @@
+{
+  "name": "@starter/jobs",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./workflow": "./src/workflow.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@starter/db": "workspace:*",
+    "@yir-ai/sdk": "^0.12.0",
+    "drizzle-orm": "^0.45.4",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260702.1",
+    "@starter/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

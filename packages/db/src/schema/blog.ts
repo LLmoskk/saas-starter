@@ -1,6 +1,6 @@
-import { pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { user } from "./auth";
-export const blogPost = pgTable(
+export const blogPost = sqliteTable(
   "blog_post",
   {
     id: text("id").primaryKey(),
@@ -14,8 +14,10 @@ export const blogPost = pgTable(
     seoTitle: text("seo_title"),
     seoDescription: text("seo_description"),
     authorId: text("author_id").references(() => user.id, { onDelete: "set null" }),
-    publishedAt: timestamp("published_at"),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    publishedAt: integer("published_at", { mode: "timestamp_ms" }),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .$defaultFn(() => new Date())
+      .notNull(),
   },
   (table) => [uniqueIndex("blog_post_locale_slug_idx").on(table.locale, table.slug)],
 );

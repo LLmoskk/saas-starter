@@ -6,15 +6,14 @@ import { isWorkersRuntime } from "./runtime";
 if (!isWorkersRuntime()) loadEnvFile(resolveEnvProfileFromProcess());
 export const env = createEnv({
   server: {
-    DATABASE_URL: z.string().min(1).optional(),
     GOOGLE_ENABLED: z.enum(["true", "false"]).optional(),
     TURNSTILE_ENABLED: z.enum(["true", "false"]).optional(),
     PAYMENTS_ENABLED: z.enum(["true", "false"]).optional(),
     STORAGE_ENABLED: z.enum(["true", "false"]).optional(),
     EMAIL_ENABLED: z.enum(["true", "false"]).optional(),
     VITE_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
-    BETTER_AUTH_SECRET: z.string().min(32),
-    BETTER_AUTH_URL: z.url(),
+    BETTER_AUTH_SECRET: z.string().min(32).optional(),
+    BETTER_AUTH_URL: z.url().optional(),
     GOOGLE_CLIENT_ID: z.string().min(1).optional(),
     GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
     TURNSTILE_SECRET: z.string().min(1).optional(),
@@ -43,6 +42,16 @@ export const env = createEnv({
     R2_BUCKET_NAME: z.string().min(1).optional(),
     R2_PUBLIC_BASE_URL: z.url().optional(),
     SENTRY_DSN: z.url().optional(),
+    YIR_API_KEY: z.string().min(1).optional(),
+    YIR_BASE_URL: z.url().optional(),
+    YIR_VIDEO_MODEL: z.string().min(1).optional(),
+    YIR_VIDEO_MAX_COST: z
+      .string()
+      .regex(/^\d+(?:\.\d{1,6})?$/)
+      .optional(),
+    SITE_ADMIN_TOKEN: z.string().min(32).optional(),
+    ADMIN_SITE_TOKENS: z.string().min(1).optional(),
+    ADMIN_SITE_URLS: z.string().min(1).optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
@@ -108,6 +117,7 @@ export const services = {
                 id: z.string().min(1),
                 name: z.string().min(1),
                 type: z.enum(["onetime", "subscription"]),
+                credits: z.number().int().positive().optional(),
               }),
             )
             .min(1)

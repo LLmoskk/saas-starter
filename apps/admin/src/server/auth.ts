@@ -14,7 +14,7 @@ import { tanstackStartCookies } from "better-auth/tanstack-start";
 const baseURL = resolveAdminBaseUrl();
 
 export const adminAuth = betterAuth({
-  database: drizzleAdapter(db, { provider: "pg", schema }),
+  database: drizzleAdapter(db, { provider: "sqlite", schema }),
   secret: resolveAdminAuthSecret(),
   baseURL,
   trustedOrigins: [baseURL],

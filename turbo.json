@@ -4,8 +4,8 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "env.local", "env.prod", "env.preview", ".env*"],
-      "outputs": ["dist/**"],
+      "inputs": ["$TURBO_DEFAULT$", "env.local", "env.prod", ".env*"],
+      "outputs": ["dist/**", ".cloudflare/output/**"],
       "env": ["STARTER_ENV", "CLOUDFLARE_ENV", "SENTRY_ORG", "SENTRY_PROJECT"],
       "passThroughEnv": ["SENTRY_AUTH_TOKEN"]
     },

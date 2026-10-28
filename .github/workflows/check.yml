@@ -33,8 +33,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       # Builds generate route trees, Paraglide declarations and Worker types for tsc.
-      - name: Build web without deploying
-        run: pnpm --dir apps/web exec vite build --mode production
+      - name: Build sites without deploying
+        run: pnpm --filter './sites/*' build
       - name: Build admin without deploying
-        run: pnpm --dir apps/admin exec vite build --mode production
+        run: pnpm --dir apps/admin build
       - run: pnpm check-types

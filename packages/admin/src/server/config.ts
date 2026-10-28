@@ -34,11 +34,9 @@ export function resolveAdminBaseUrl(): string {
 }
 
 export function resolveAdminAuthSecret(): string {
-  const explicit = env.ADMIN_BETTER_AUTH_SECRET ?? env.BETTER_AUTH_SECRET;
+  const explicit = env.ADMIN_BETTER_AUTH_SECRET;
   if (!explicit || explicit.length < 32) {
-    throw new Error(
-      "ADMIN_BETTER_AUTH_SECRET (or BETTER_AUTH_SECRET) must be at least 32 characters",
-    );
+    throw new Error("ADMIN_BETTER_AUTH_SECRET must be at least 32 characters");
   }
   return explicit;
 }

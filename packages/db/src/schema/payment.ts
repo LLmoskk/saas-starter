@@ -1,6 +1,6 @@
-import { pgTable, text, timestamp, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { user } from "./auth";
-export const payment = pgTable(
+export const payment = sqliteTable(
   "payment",
   {
     id: text("id").primaryKey(),
@@ -14,15 +14,17 @@ export const payment = pgTable(
     amount: text("amount"),
     currency: text("currency"),
     status: text("status").notNull(),
-    paidAt: timestamp("paid_at"),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    paidAt: integer("paid_at", { mode: "timestamp_ms" }),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .$defaultFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     index("payment_user_idx").on(table.userId),
     uniqueIndex("payment_payment_id_idx").on(table.paymentId),
   ],
 );
-export const subscription = pgTable(
+export const subscription = sqliteTable(
   "subscription",
   {
     orderId: text("order_id").primaryKey(),
@@ -32,13 +34,17 @@ export const subscription = pgTable(
     productId: text("product_id"),
     productName: text("product_name"),
     status: text("status").notNull(),
-    currentPeriodEnd: timestamp("current_period_end"),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    currentPeriodEnd: integer("current_period_end", { mode: "timestamp_ms" }),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .$defaultFn(() => new Date())
+      .notNull(),
   },
   (table) => [index("subscription_user_idx").on(table.userId)],
 );
-export const webhookEvent = pgTable("webhook_event", {
+export const webhookEvent = sqliteTable("webhook_event", {
   id: text("id").primaryKey(),
   eventType: text("event_type").notNull(),
-  processedAt: timestamp("processed_at").defaultNow().notNull(),
+  processedAt: integer("processed_at", { mode: "timestamp_ms" })
+    .$defaultFn(() => new Date())
+    .notNull(),
 });

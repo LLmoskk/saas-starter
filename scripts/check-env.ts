@@ -4,6 +4,7 @@ import { env, services } from "../packages/env/src/server";
 
 if (
   process.env.GITHUB_ACTIONS &&
+  process.env.RELEASE_TARGET === "apps/admin" &&
   (!env.ADMIN_EMAILS || !env.ADMIN_BETTER_AUTH_URL || !env.ADMIN_BETTER_AUTH_SECRET)
 ) {
   throw new Error(

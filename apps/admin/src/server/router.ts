@@ -1,19 +1,24 @@
+import {
+  createAdminRouter,
+  type getOverview,
+  type getUserDetail,
+  type listAuditEvents,
+  type listUsers,
+  type setUserDisabled,
+} from "@starter/admin/server";
+import { auditLogSearchSchema, usersSearchSchema } from "@starter/admin/search";
+import type { blogPost } from "@starter/db/schema/blog";
+import type { generationJob } from "@starter/db/schema/generation";
+import type { payment, subscription } from "@starter/db/schema/payment";
 import { services } from "@starter/env/server";
-import { createAdminRouter, recordAdminAudit } from "@starter/admin/server";
-import { db } from "@starter/db";
-import { blogPost } from "@starter/db/schema/blog";
-import { payment, subscription } from "@starter/db/schema/payment";
-import { createBlogImageUpload } from "@starter/storage";
-import { desc, eq } from "drizzle-orm";
+import type { createBlogImageUpload } from "@starter/storage";
 import { z } from "zod";
-
-// 保证服务端在第一次执行 procedure 前已经注入品牌/时区配置。
 import "@/admin-config";
-
+import { siteRegistry } from "@/sites";
 import { adminAuth } from "./auth";
+import { selectedSite, siteRequest } from "./site-client";
 
 const core = createAdminRouter({ auth: adminAuth });
-
 export const createContext = core.createContext;
 
 const postInput = z.object({
@@ -29,63 +34,110 @@ const postInput = z.object({
   status: z.enum(["draft", "published"]),
 });
 
-/**
- * 通用内核 + 本项目自己的业务模块。通用部分来自 @starter/admin/server，
- * 业务 procedure 复用同一个 adminProcedure，保证鉴权与审计口径一致。
- */
 export const adminRouter = {
   ...core.router,
-  features: core.publicProcedure.handler(() => ({
-    google: Boolean(services.google),
-    storage: Boolean(services.storage),
+  sites: core.adminProcedure.handler(({ context }) => ({
+    items: siteRegistry.map(({ id, name }) => ({ id, name })),
+    selected: selectedSite(context.siteId).id,
   })),
-  payments: {
-    list: core.adminProcedure.handler(() =>
-      db.select().from(payment).orderBy(desc(payment.updatedAt)).limit(100),
+  features: core.publicProcedure.handler(async ({ context }) => ({
+    google: Boolean(services.google),
+    storage: (
+      await siteRequest<{ storage: boolean }>(context, "features").catch(() => ({ storage: false }))
+    ).storage,
+  })),
+  overview: {
+    get: core.adminProcedure.handler(({ context }) =>
+      siteRequest<Awaited<ReturnType<typeof getOverview>>>(context, "overview.get"),
     ),
-    subscriptions: core.adminProcedure.handler(() =>
-      db.select().from(subscription).orderBy(desc(subscription.updatedAt)).limit(100),
+  },
+  users: {
+    list: core.adminProcedure
+      .input(usersSearchSchema)
+      .handler(({ input, context }) =>
+        siteRequest<Awaited<ReturnType<typeof listUsers>>>(context, "users.list", input),
+      ),
+    detail: core.adminProcedure
+      .input(z.object({ userId: z.string().min(1) }))
+      .handler(({ input, context }) =>
+        siteRequest<Awaited<ReturnType<typeof getUserDetail>>>(context, "users.detail", input),
+      ),
+    setDisabled: core.desktopWriteProcedure
+      .input(
+        z.object({
+          userId: z.string().min(1),
+          disabled: z.boolean(),
+          reason: z.string().trim().max(500).optional(),
+          idempotencyKey: z.uuid(),
+        }),
+      )
+      .handler(({ input, context }) =>
+        siteRequest<Awaited<ReturnType<typeof setUserDisabled>>>(
+          context,
+          "users.setDisabled",
+          input,
+        ),
+      ),
+  },
+  audit: {
+    list: core.adminProcedure
+      .input(auditLogSearchSchema)
+      .handler(({ input, context }) =>
+        siteRequest<Awaited<ReturnType<typeof listAuditEvents>>>(context, "audit.list", input),
+      ),
+  },
+  payments: {
+    list: core.adminProcedure.handler(({ context }) =>
+      siteRequest<(typeof payment.$inferSelect)[]>(context, "payments.list"),
+    ),
+    subscriptions: core.adminProcedure.handler(({ context }) =>
+      siteRequest<(typeof subscription.$inferSelect)[]>(context, "payments.subscriptions"),
     ),
   },
   blog: {
-    list: core.adminProcedure.handler(() =>
-      db.select().from(blogPost).orderBy(desc(blogPost.updatedAt)).limit(100),
+    list: core.adminProcedure.handler(({ context }) =>
+      siteRequest<(typeof blogPost.$inferSelect)[]>(context, "blog.list"),
     ),
-    save: core.adminProcedure.input(postInput).handler(async ({ input, context }) =>
-      db.transaction(async (tx) => {
-        const id = input.id ?? crypto.randomUUID();
-        const values = {
-          slug: input.slug,
-          locale: input.locale,
-          title: input.title,
-          excerpt: input.excerpt,
-          markdown: input.markdown,
-          coverUrl: input.coverUrl || null,
-          seoTitle: input.seoTitle || null,
-          seoDescription: input.seoDescription || null,
-          status: input.status,
-          publishedAt: input.status === "published" ? new Date() : null,
-          updatedAt: new Date(),
-        };
-        if (input.id) {
-          await tx.update(blogPost).set(values).where(eq(blogPost.id, id));
-        } else {
-          await tx.insert(blogPost).values({ id, ...values, authorId: context.admin.id });
-        }
-        await recordAdminAudit(tx, {
-          actorUserId: context.admin.id,
-          action: input.status === "published" ? "blog_publish" : "blog_save",
-          targetType: "blog_post",
-          targetId: id,
-        });
-        return { id };
-      }),
-    ),
+    save: core.desktopWriteProcedure
+      .input(postInput)
+      .handler(({ input, context }) => siteRequest<{ id: string }>(context, "blog.save", input)),
     uploadUrl: core.adminProcedure
       .input(
-        z.object({ contentType: z.enum(["image/png", "image/jpeg", "image/webp", "image/avif"]) }),
+        z.object({
+          contentType: z.enum(["image/png", "image/jpeg", "image/webp", "image/avif"]),
+        }),
       )
-      .handler(({ input }) => createBlogImageUpload(input.contentType)),
+      .handler(({ input, context }) =>
+        siteRequest<Awaited<ReturnType<typeof createBlogImageUpload>>>(
+          context,
+          "blog.uploadUrl",
+          input,
+        ),
+      ),
+  },
+  jobs: {
+    list: core.adminProcedure.handler(({ context }) =>
+      siteRequest<(typeof generationJob.$inferSelect)[]>(context, "jobs.list"),
+    ),
+  },
+  credits: {
+    grant: core.desktopWriteProcedure
+      .input(
+        z.object({
+          userId: z.string().min(1),
+          amount: z
+            .number()
+            .int()
+            .min(-10000)
+            .max(10000)
+            .refine((value) => value !== 0),
+          reason: z.string().min(1).max(500),
+          idempotencyKey: z.uuid(),
+        }),
+      )
+      .handler(({ input, context }) =>
+        siteRequest<{ userId: string; amount: number }>(context, "credits.grant", input),
+      ),
   },
 };
 

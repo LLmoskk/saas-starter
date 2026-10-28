@@ -10,8 +10,11 @@ import { captcha } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { sendEmail } from "./email";
 
+if (!env.BETTER_AUTH_SECRET || !env.BETTER_AUTH_URL)
+  throw new Error("BETTER_AUTH_SECRET and BETTER_AUTH_URL are required for a site");
+
 export const auth = betterAuth({
-  database: drizzleAdapter(db, { provider: "pg", schema }),
+  database: drizzleAdapter(db, { provider: "sqlite", schema }),
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
   trustedOrigins: [env.BETTER_AUTH_URL],

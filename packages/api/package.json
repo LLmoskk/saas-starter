@@ -11,6 +11,7 @@
     "@starter/auth": "workspace:*",
     "@starter/db": "workspace:*",
     "@starter/env": "workspace:*",
+    "@starter/jobs": "workspace:*",
     "drizzle-orm": "^0.45.4",
     "zod": "catalog:"
   }

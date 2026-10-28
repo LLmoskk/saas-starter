@@ -1,6 +1,6 @@
 # Waffo 支付与套餐变更
 
-模板使用 `@waffo/pancake-ts` 0.25。商品通过 `WAFFO_PRODUCTS` 配置，包含 `id`、`name`、`type`，类型为 `onetime` 或 `subscription`。
+模板使用 `@waffo/pancake-ts` 0.26。各站独立配置 Waffo 商户与 `WAFFO_PRODUCTS`；商品包含 `id`、`name`、`type`，类型为 `onetime` 或 `subscription`。需要生成积分的商品设置正整数 `credits`。付款成功事件有 `paymentId` 时按该 ID 发放一次积分；仅确认全额退款时撤销积分，部分退款留待人工处理。生成失败或取消通过站点积分流水自动退还任务积分，若该站使用非积分收费，应在 Waffo 后台人工退款。
 
 - 新购买调用 `checkout.authenticated.create()`；已有单一正常订阅调用 `checkout.authenticated.createPlanChange()`，原订单从当前登录用户的订阅记录获取，浏览器不能指定他人的订单。
 - 变更链接包含客户令牌，无需再次通过邮箱登录。令牌放在 URL fragment 中，不要记录或缓存链接。测试环境附带 `test=true`。

@@ -1,31 +1,18 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "saas-starter-admin",
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "ai-video-admin",
   "main": "src/server.ts",
-  "compatibility_date": "2026-10-07",
+  "compatibility_date": "2026-10-28",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "preview_urls": false,
-  "observability": {
-    "enabled": true,
-  },
-  "hyperdrive": [
+  "observability": { "enabled": true },
+  "d1_databases": [
     {
-      "binding": "HYPERDRIVE",
-      "id": "00000000000000000000000000000000",
-      "localConnectionString": "postgresql://postgres:password@localhost:5433/starter",
+      "binding": "DB",
+      "database_name": "ai-video-admin",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "../../packages/db/src/migrations",
     },
   ],
-  "env": {
-    "preview": {
-      "name": "saas-starter-admin-preview",
-      "hyperdrive": [
-        {
-          "binding": "HYPERDRIVE",
-          "id": "11111111111111111111111111111111",
-          "localConnectionString": "postgresql://postgres:password@localhost:5433/starter",
-        },
-      ],
-    },
-  },
 }

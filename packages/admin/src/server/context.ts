@@ -19,6 +19,7 @@ export type AdminAuth = {
 
 export type AdminContext = {
   admin: AdminUser | null;
+  siteId: string | null;
   requestIp: string | null;
   /** 客户端上报的视口类别：高风险写操作在服务端同样拒绝 mobile */
   clientViewport: "desktop" | "mobile";
@@ -44,6 +45,13 @@ export async function createAdminContext({
   auth: AdminAuth;
 }): Promise<AdminContext> {
   const base = {
+    siteId:
+      req.headers
+        .get("cookie")
+        ?.split(";")
+        .map((part) => part.trim())
+        .find((part) => part.startsWith("admin-site="))
+        ?.slice("admin-site=".length) ?? null,
     requestIp: getRequestIp(req),
     clientViewport:
       req.headers.get("x-admin-viewport") === "mobile" ? ("mobile" as const) : ("desktop" as const),

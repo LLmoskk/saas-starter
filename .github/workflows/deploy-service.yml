@@ -31,16 +31,18 @@ jobs:
           cache: pnpm
       - name: Prepare production configuration
         env:
-          PRODUCTION_ENV_FILE: ${{ secrets.PRODUCTION_ENV_FILE }}
+          PRODUCTION_ENV_FILES: ${{ secrets.PRODUCTION_ENV_FILES }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           node --input-type=module <<'NODE'
           import { writeFileSync } from 'node:fs';
-          if (!['web', 'admin'].includes(process.env.RELEASE_TARGET)) throw new Error('Invalid release target');
-          for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN', 'PRODUCTION_ENV_FILE']) {
+          if (!/^(sites\/[a-z0-9-]+|apps\/admin)$/.test(process.env.RELEASE_TARGET)) throw new Error('Invalid release target');
+          for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN', 'PRODUCTION_ENV_FILES']) {
             if (!process.env[name]) throw new Error(`Configure production ${name} before deploying`);
           }
-          writeFileSync('apps/web/env.prod', process.env.PRODUCTION_ENV_FILE, { mode: 0o600 });
+          const files = JSON.parse(process.env.PRODUCTION_ENV_FILES);
+          if (typeof files[process.env.RELEASE_TARGET] !== 'string') throw new Error(`Missing ${process.env.RELEASE_TARGET} production configuration`);
+          writeFileSync(`${process.env.RELEASE_TARGET}/env.prod`, files[process.env.RELEASE_TARGET], { mode: 0o600 });
           NODE
       - run: pnpm install --frozen-lockfile
       - name: Check release commit is still current
@@ -55,7 +57,7 @@ jobs:
         run: node scripts/cloudflare.mjs deploy prod "$RELEASE_TARGET"
       - name: Remove temporary production configuration
         if: always()
-        run: node --input-type=module -e "import {rmSync} from 'node:fs'; rmSync('apps/web/env.prod', {force:true})"
+        run: node --input-type=module -e "import {rmSync} from 'node:fs'; rmSync(process.env.RELEASE_TARGET + '/env.prod', {force:true})"
       - name: Record release result
         if: always()
         env:

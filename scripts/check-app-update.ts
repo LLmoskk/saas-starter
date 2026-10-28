@@ -1,7 +1,7 @@
 // Isolated check: pnpm exec tsx scripts/check-app-update.ts. No browser, network or database.
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
-import { prepareForRefresh, registerRefreshGuard } from "../apps/web/src/lib/app-update";
+import { prepareForRefresh, registerRefreshGuard } from "../sites/demo/src/lib/app-update";
 
 const calls: string[] = [];
 let removeReplacement: (() => void) | undefined;
@@ -34,10 +34,7 @@ try {
 }
 
 if (process.argv.includes("--build")) {
-  const assets = new URL(
-    "../apps/web/.cloudflare/output/v0/workers/default/assets/",
-    import.meta.url,
-  );
+  const assets = new URL("../sites/demo/dist/client/", import.meta.url);
   const { version } = JSON.parse(await readFile(new URL("version.json", assets), "utf8"));
   const chunks = await readdir(new URL("assets/", assets));
   const sources = await Promise.all(
