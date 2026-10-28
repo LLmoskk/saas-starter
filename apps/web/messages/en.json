@@ -32,10 +32,19 @@
   "app.currentPlan": "Current plan",
   "app.changePlan": "Change plan",
   "app.planChangeReady": "Review plan change",
-  "app.planChangeDescription": "Your selected plan change will open in Waffo in a new tab, already signed in. Review the amount due and effective date before confirming. Opening the page does not change your subscription or charge you.",
   "app.checkoutReady": "Continue to checkout",
-  "app.checkoutDescription": "Checkout will open in a new tab. You can close it and return here to choose another product.",
-  "app.portalDescription": "Subscription management will open in Waffo in a new tab. Sign in with the email used for your purchase.",
   "app.continue": "Continue to Waffo",
-  "app.cancel": "Cancel"
+  "app.cancel": "Cancel",
+  "nav.language": "Language",
+  "auth.verificationRequired": "Complete the verification first.",
+  "auth.checkEmail": "Check your email.",
+  "auth.pending": "Processing…",
+  "auth.failed": "Sign-in failed. Try again.",
+  "common.retry": "Try again",
+  "common.save": "Save",
+  "auth.newPassword": "New password",
+  "auth.resetComplete": "Password reset. You can sign in.",
+  "payment.thanks": "Thank you",
+  "payment.confirmationPending": "Awaiting payment confirmation",
+  "payment.return": "Return to app"
 }

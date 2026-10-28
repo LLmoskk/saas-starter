@@ -49,6 +49,7 @@ packages/
   env/          # 环境变量加载与校验
   storage/      # R2 博客图片预签名上传
   config/       # 共享 TypeScript 配置
+  ui/           # 前后台共享控件与语义主题映射
 ```
 
 后台 oRPC 路由位于 `apps/admin/src/server`。两个应用共享数据库，但后台使用独立的认证地址、密钥与 Cookie 前缀。
@@ -72,11 +73,13 @@ pnpm dev
 
 前台地址为 <http://localhost:3001>，后台地址为 <http://localhost:3002>。本地 PostgreSQL 使用 `localhost:5433`。后台默认也会读取前台的 `env.local`，需要覆盖时可创建 `apps/admin/env.local`。
 
-示例文件中的空值需要替换。当前环境校验要求 Google、Turnstile、Waffo 和 R2 等服务配置，不能只填写数据库连接就启动完整应用。
+本地只需数据库与认证配置即可开发基础页面。Google、Turnstile、Waffo、R2 和发信按功能开关启用，关闭时不会初始化客户端；开启时校验完整配置。详见 [功能开关与国际化](docs/configuration.md)。
+
+安装依赖时自动启用 pre-commit；在 git init 之后安装或执行 `pnpm setup:local` 即可。提交前运行 `pnpm check`，CI 另做构建和类型检查，不自动执行业务测试。
 
 ## 服务配置
 
-所有变量以 [`apps/web/env.local.example`](./apps/web/env.local.example) 为准。
+所有变量以 [`apps/web/env.local.example`](./apps/web/env.local.example) 为准。可选服务先启用对应开关再填写配置，规则见 [配置说明](docs/configuration.md)。
 
 - 数据库与认证：设置 `DATABASE_URL`、`BETTER_AUTH_URL` 和至少 32 字符的 `BETTER_AUTH_SECRET`。生产后台必须设置独立的 `ADMIN_BETTER_AUTH_URL` 与 `ADMIN_BETTER_AUTH_SECRET`；`ADMIN_EMAILS` 使用逗号分隔。
 - Google OAuth：设置 `GOOGLE_CLIENT_ID`、`GOOGLE_CLIENT_SECRET`，分别登记前台与后台的 `/api/auth/callback/google` 回调地址。
@@ -106,6 +109,14 @@ pnpm dev
 1. 使用全新 Git 历史创建项目，修改包名、站点名称、首页、应用页和样式。
 2. 使用新项目自己的服务账号、域名、密钥与存储桶，配置商品和业务权益。
 3. 补齐法律页面、隐私说明与退款规则，在真实支付环境验证 Webhook 字段和订阅状态后再开放支付。
-4. 按 [Cloudflare 部署指南](docs/cloudflare.md) 使用新 cf CLI 和 Vite 插件配置前台与后台的 Worker、Hyperdrive 和 Production / Preview 环境。浏览器变量必须在构建前配置。
+4. 按 [Cloudflare 部署指南](docs/cloudflare.md) 配置自己的 Worker、Hyperdrive 和域名，填写 `apps/web/env.prod`，运行 `pnpm setup:github`。之后推送 `main` 自动检查并按变更独立发布前台、后台；其他分支与 PR 只检查。
 5. schema 变更时使用目标环境的 `DATABASE_URL` 执行 `pnpm db:push`，执行前确认数据库目标。
 6. 在 Google Search Console 验证新域名并提交 `/sitemap.xml`。
+
+## GitHub CI/CD
+
+Workflow 已内置，新项目不需要重写发布脚本。首次使用只需配置自己的 Cloudflare 资源和生产环境文件，再运行 `pnpm setup:github`。它会把账号 ID、API Token 和生产配置写入 GitHub `production` Environment，不会立即部署。
+
+日常提交并推送 `main`，受影响的 `Deploy Web` / `Deploy Admin` 工作流检查通过后分别发布。生产配置由 GitHub 管理，本机只保留预览发布。CI 不自动同步数据库，也不调用付费业务做验收。配置步骤、Token 权限和重跑方式见 [部署指南](docs/cloudflare.md#github-actions-首次配置)。
+
+UI 修改遵循 [DESIGN.md](DESIGN.md)，基础控件统一从 `@starter/ui` 复用。

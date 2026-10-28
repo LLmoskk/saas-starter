@@ -26,7 +26,7 @@ A personal SaaS starter with separate user and admin apps sharing authentication
 | -------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | User authentication        | Better Auth, Google OAuth                                            | Email sign-up and sign-in, Google sign-in, password reset with session revocation                                    |
 | Bot protection             | Cloudflare Turnstile                                                 | Validation for email sign-up, sign-in, and password reset, including action and allowed hostnames                    |
-| Transactional email        | Resend                                                               | Password reset emails; requires an API key, sender, and verified sending domain                                      |
+| Transactional email        | Cloudflare Email Sending                                             | Password reset emails; requires an API key, sender, and verified sending domain                                      |
 | Payments and subscriptions | Waffo Pancake SDK                                                    | One-time and subscription checkout, signed webhook verification, event deduplication, order and subscription storage |
 | Image storage              | Cloudflare R2, AWS S3 SDK                                            | Admin requests presigned PUT URLs for blog images, served through a public domain                                    |
 | Admin app                  | Separate Better Auth sessions, email allowlist                       | Enable or disable users, view payments and subscriptions, manage blogs, view audit logs                              |
@@ -72,7 +72,7 @@ pnpm dev
 
 Open <http://localhost:3001> for the user app and <http://localhost:3002> for the admin app. Local PostgreSQL listens on `localhost:5433`. The admin app also loads the web app's `env.local` by default; create `apps/admin/env.local` for app-specific values.
 
-Replace the empty values in the example file. Environment validation currently requires Google, Turnstile, Resend, Waffo, and R2 settings. A database URL alone is insufficient to start the complete app.
+Only database and authentication settings are required for basic local development. Google, Turnstile, payments, storage, and email are optional and validate when enabled. See [configuration](docs/configuration.md).
 
 ## Service configuration
 
@@ -81,7 +81,7 @@ Use [`apps/web/env.local.example`](./apps/web/env.local.example) as the configur
 - Database and authentication: set `DATABASE_URL`, `BETTER_AUTH_URL`, and a `BETTER_AUTH_SECRET` of at least 32 characters. Production admin deployments require separate `ADMIN_BETTER_AUTH_URL` and `ADMIN_BETTER_AUTH_SECRET` values. Separate `ADMIN_EMAILS` entries with commas.
 - Google OAuth: set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. Register `/api/auth/callback/google` callback URLs for both apps.
 - Turnstile: set `VITE_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET`, and comma-separated `TURNSTILE_HOSTNAMES`. Configure the app domains in the service dashboard.
-- Resend: set `RESEND_API_KEY` and `RESEND_FROM` with a verified sending domain.
+- Cloudflare Email Sending: enable `EMAIL_ENABLED` and configure `CLOUDFLARE_EMAIL_ACCOUNT_ID`, `CLOUDFLARE_EMAIL_API_TOKEN`, and `EMAIL_FROM_ADDRESS` with a verified sending domain.
 - Waffo: configure the merchant ID, private key, store ID, success URL, and `WAFFO_ENVIRONMENT`, which accepts `test` or `prod`. `WAFFO_PRODUCTS` is a JSON array with `id`, `name`, and `type`; types are `onetime` or `subscription`. Send webhooks to `https://<web-domain>/api/webhooks/waffo`.
 - See [Waffo integration](docs/waffo.md#english) for authenticated plan changes, webhook subscriptions, and idempotency rules.
 - R2: configure the account ID, access credentials, bucket, and `R2_PUBLIC_BASE_URL`. Allow PUT requests from upload origins in the bucket CORS settings and verify that public image URLs work.
@@ -106,6 +106,16 @@ Variables prefixed with `VITE_` enter the browser build. Use that prefix only fo
 1. Start with fresh Git history. Update package names, site name, homepage, app page, and styles.
 2. Use the new project's service accounts, domains, secrets, and storage buckets. Configure products and implement entitlements.
 3. Add legal pages, privacy disclosures, and refund rules. Verify webhook fields and subscription states in the live payment environment before accepting payments.
-4. Follow the [Cloudflare deployment guide](docs/cloudflare.md) to configure web/admin Workers, Hyperdrive, and Production / Preview environments with the new cf CLI and Vite plugin. Browser variables must exist before building.
+4. Follow the [Cloudflare deployment guide](docs/cloudflare.md) to configure your Workers, Hyperdrive, and domains. Fill in `apps/web/env.prod` and run `pnpm setup:github`. Pushes to `main` check and deploy affected apps independently; other branches and pull requests only run checks.
 5. For schema changes, run `pnpm db:push` with the target environment's `DATABASE_URL`. Confirm the database target before running it.
 6. Verify the new domain in Google Search Console and submit `/sitemap.xml`.
+
+## GitHub CI/CD
+
+GitHub workflows are included. Configure your Cloudflare resources and production environment file, then run `pnpm setup:github` once to populate the GitHub `production` Environment with the account ID, API token, and environment file. Setup does not deploy.
+
+Push `main` to check and deploy affected web/admin services independently. Production deployments run in GitHub Actions; local deployments target Preview. CI does not modify the database schema or invoke paid business operations for verification. See the [deployment guide](docs/cloudflare.md) for permissions, configuration updates, and reruns.
+
+## Shared foundations
+
+Use `@starter/ui` for shared web/admin controls and follow [DESIGN.md](DESIGN.md). Local setup supports disabled Google, Turnstile, payments, storage, and email integrations. See [configuration](docs/configuration.md) for feature flags, localized navigation, SEO, and message checks. Dependency installation enables pre-commit checks; run `pnpm setup:local` if Git was initialized afterward.

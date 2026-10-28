@@ -21,6 +21,7 @@
     "@starter/db": "workspace:*",
     "@starter/env": "workspace:*",
     "@starter/storage": "workspace:*",
+    "@starter/ui": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.104.4",
     "@tanstack/react-router": "^1.170.45",

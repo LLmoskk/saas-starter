@@ -7,7 +7,7 @@
       "inputs": ["$TURBO_DEFAULT$", "env.local", "env.prod", "env.preview", ".env*"],
       "outputs": ["dist/**"],
       "env": ["STARTER_ENV", "CLOUDFLARE_ENV", "SENTRY_ORG", "SENTRY_PROJECT"],
-      "passThroughEnv": ["SENTRY_AUTH_TOKEN", "SKIP_ENV_VALIDATION"]
+      "passThroughEnv": ["SENTRY_AUTH_TOKEN"]
     },
     "lint": {
       "dependsOn": ["^lint"]

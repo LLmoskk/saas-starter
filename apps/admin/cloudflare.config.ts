@@ -19,6 +19,7 @@ export default defineConfig((ctx) => {
         ...Object.fromEntries(
           WORKER_REQUIRED_SECRET_NAMES.map((name) => [name, bindings.secret()]),
         ),
+        ADMIN_EMAILS: bindings.secret(),
         ADMIN_BETTER_AUTH_URL: bindings.secret(),
         ADMIN_BETTER_AUTH_SECRET: bindings.secret(),
         HYPERDRIVE: bindings.hyperdrive({

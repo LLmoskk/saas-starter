@@ -24,6 +24,7 @@
     "@orpc/tanstack-query": "^1.15.7",
     "@starter/db": "workspace:*",
     "@starter/env": "workspace:*",
+    "@starter/ui": "workspace:*",
     "@tanstack/react-query": "^5.104.4",
     "@tanstack/react-router": "^1.170.45",
     "@tanstack/react-start": "^1.169.3",

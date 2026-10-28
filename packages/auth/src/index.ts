@@ -1,7 +1,7 @@
 import { db } from "@starter/db";
 import * as schema from "@starter/db/schema/auth";
 import { user } from "@starter/db/schema/auth";
-import { env } from "@starter/env/server";
+import { env, services } from "@starter/env/server";
 import { eq } from "drizzle-orm";
 import { APIError } from "better-auth/api";
 import { betterAuth } from "better-auth";
@@ -10,18 +10,12 @@ import { captcha } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { sendEmail } from "./email";
 
-const hostnames = env.TURNSTILE_HOSTNAMES.split(",")
-  .map((x) => x.trim())
-  .filter(Boolean);
-if (!hostnames.length) throw new Error("TURNSTILE_HOSTNAMES is required");
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg", schema }),
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
   trustedOrigins: [env.BETTER_AUTH_URL],
-  socialProviders: {
-    google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET },
-  },
+  socialProviders: services.google ? { google: services.google } : {},
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
@@ -55,12 +49,19 @@ export const auth = betterAuth({
   },
   plugins: [
     tanstackStartCookies(),
-    captcha({
-      provider: "cloudflare-turnstile",
-      secretKey: env.TURNSTILE_SECRET,
-      endpoints: ["/sign-up/email", "/sign-in/email", "/request-password-reset"],
-      expectedAction: "auth",
-      allowedHostnames: hostnames,
-    }),
+    ...(services.turnstile
+      ? [
+          captcha({
+            provider: "cloudflare-turnstile",
+            secretKey: services.turnstile.secret,
+            endpoints: ["/sign-up/email", "/sign-in/email", "/request-password-reset"],
+            expectedAction: "auth",
+            allowedHostnames: services.turnstile.hostnames
+              .split(",")
+              .map((host) => host.trim())
+              .filter(Boolean),
+          }),
+        ]
+      : []),
   ],
 });

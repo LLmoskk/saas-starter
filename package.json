@@ -14,14 +14,20 @@
     "db:studio": "pnpm --dir packages/db db:studio",
     "db:start": "pnpm --dir packages/db db:start",
     "db:stop": "pnpm --dir packages/db db:stop",
-    "check": "oxlint && oxfmt --check",
+    "check": "oxlint && node scripts/check-architecture.mjs && pnpm check:i18n && oxfmt --check",
     "env:production": "node scripts/cloudflare.mjs sync prod",
     "env:preview": "node scripts/cloudflare.mjs sync preview",
     "deploy:prod": "node scripts/cloudflare.mjs deploy prod",
     "deploy:preview": "node scripts/cloudflare.mjs deploy preview",
     "db:push:prod": "STARTER_ENV=prod pnpm db:push",
     "db:push:preview": "STARTER_ENV=preview pnpm db:push",
-    "deploy:setup": "pnpm --dir apps/web exec cf auth login"
+    "deploy:setup": "pnpm --dir apps/web exec cf auth login",
+    "setup:github": "node scripts/setup-github.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "messages": "pnpm --dir apps/web exec paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy url cookie baseLocale",
+    "setup:local": "node scripts/setup-local.mjs",
+    "prepare": "node scripts/setup-local.mjs",
+    "env:check": "tsx scripts/check-env.ts"
   },
   "devDependencies": {
     "@starter/config": "workspace:*",

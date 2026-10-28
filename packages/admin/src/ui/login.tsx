@@ -7,9 +7,11 @@ import { Button } from "./button";
 export function LoginPage({
   onSignIn,
   pendingLabel = "正在跳转…",
+  available = true,
 }: {
   onSignIn: () => Promise<string | null | void>;
   pendingLabel?: string;
+  available?: boolean;
 }) {
   const { brand, login } = getAdminConfig();
   const [pending, setPending] = useState(false);
@@ -40,10 +42,10 @@ export function LoginPage({
 
         <Button
           className="mt-6 h-11 w-full sm:mt-8 sm:h-12"
-          disabled={pending}
+          disabled={pending || !available}
           onClick={handleSignIn}
         >
-          {pending ? pendingLabel : login.providerLabel}
+          {!available ? "Google 登录未启用" : pending ? pendingLabel : login.providerLabel}
         </Button>
         {error ? (
           <p role="alert" className="mt-3 text-sm text-destructive">

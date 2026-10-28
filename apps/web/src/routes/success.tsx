@@ -1,10 +1,14 @@
+import { seoHead } from "@/utils/seo";
+import { m } from "@/paraglide/messages";
+import { Card } from "@starter/ui";
 import { Link, createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/success")({
+  head: () => seoHead("/success", { title: m["payment.thanks"](), indexable: false }),
   component: () => (
-    <main className="panel">
-      <h1>Thank you</h1>
-      <p>Your order will appear after the payment provider confirms it.</p>
-      <Link to="/app">Return to app</Link>
-    </main>
+    <Card as="main">
+      <h1>{m["payment.thanks"]()}</h1>
+      <p>{m["payment.confirmationPending"]()}</p>
+      <Link to="/app">{m["payment.return"]()}</Link>
+    </Card>
   ),
 });

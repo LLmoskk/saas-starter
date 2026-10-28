@@ -48,6 +48,7 @@ const EMPTY_FORM: BlogForm = {
 
 function BlogPage() {
   const queryClient = useQueryClient();
+  const features = useQuery(orpc.features.queryOptions());
   const posts = useQuery(orpc.blog.list.queryOptions());
   const [form, setForm] = useState<BlogForm>(EMPTY_FORM);
 
@@ -222,26 +223,28 @@ function BlogPage() {
                 onChange={(event) => setForm({ ...form, coverUrl: event.target.value })}
               />
             </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="admin-label">插入图片</span>
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/avif"
-                className="h-10 rounded-md border border-border bg-card px-2 py-1.5 text-xs text-muted-foreground file:mr-3 file:rounded-sm file:border-0 file:bg-raised file:px-2 file:py-1 file:text-[11px] file:text-foreground"
-                onChange={async (event) => {
-                  const file = event.target.files?.[0];
-                  if (!file) return;
-                  try {
-                    await uploadImage(file);
-                    toast.success("图片已插入正文");
-                  } catch (error) {
-                    toast.error(error instanceof Error ? error.message : String(error));
-                  } finally {
-                    event.target.value = "";
-                  }
-                }}
-              />
-            </label>
+            {features.data?.storage ? (
+              <label className="flex flex-col gap-1.5">
+                <span className="admin-label">插入图片</span>
+                <Input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/avif"
+                  className="h-10 rounded-md border border-border bg-card px-2 py-1.5 text-xs text-muted-foreground file:mr-3 file:rounded-sm file:border-0 file:bg-raised file:px-2 file:py-1 file:text-[11px] file:text-foreground"
+                  onChange={async (event) => {
+                    const file = event.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      await uploadImage(file);
+                      toast.success("图片已插入正文");
+                    } catch (error) {
+                      toast.error(error instanceof Error ? error.message : String(error));
+                    } finally {
+                      event.target.value = "";
+                    }
+                  }}
+                />
+              </label>
+            ) : null}
             <label className="flex flex-col gap-1.5">
               <span className="admin-label">SEO 标题</span>
               <Input

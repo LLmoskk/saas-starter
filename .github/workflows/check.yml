@@ -1,0 +1,40 @@
+name: Check
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CF_SEND_TELEMETRY: "false"
+      # PRs, including forks, build without production configuration or credentials.
+      GOOGLE_ENABLED: "false"
+      TURNSTILE_ENABLED: "false"
+      PAYMENTS_ENABLED: "false"
+      STORAGE_ENABLED: "false"
+      EMAIL_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      # Builds generate route trees, Paraglide declarations and Worker types for tsc.
+      - name: Build web without deploying
+        run: pnpm --dir apps/web exec vite build --mode production
+      - name: Build admin without deploying
+        run: pnpm --dir apps/admin exec vite build --mode production
+      - run: pnpm check-types

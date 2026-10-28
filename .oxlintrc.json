@@ -1,14 +1,18 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn",
-    "oxc"
-  ],
+  "plugins": ["typescript", "unicorn", "oxc"],
   "categories": {
     "correctness": "error"
   },
-  "rules": {},
+  "rules": {
+    "typescript/consistent-type-definitions": ["error", "type"],
+    "unicorn/filename-case": [
+      "error",
+      {
+        "case": "kebabCase"
+      }
+    ]
+  },
   "env": {
     "builtin": true
   },
@@ -17,6 +21,68 @@
     "dist",
     "node_modules",
     "routeTree.gen.ts",
-    "**/public/signal-bundles/**"
+    "**/public/signal-bundles/**",
+    "**/paraglide/**",
+    ".cloudflare/**"
+  ],
+  "overrides": [
+    {
+      "files": ["apps/*/src/**", "packages/ui/src/**", "packages/admin/src/ui/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@starter/db",
+                  "@starter/db/*",
+                  "@starter/auth",
+                  "@starter/auth/payments",
+                  "@starter/auth/email",
+                  "@starter/api",
+                  "@starter/api/context",
+                  "@starter/api/routers/*",
+                  "@starter/env/server",
+                  "@starter/env/load-env",
+                  "@starter/admin/server",
+                  "@starter/admin/server-config",
+                  "@starter/storage",
+                  "@starter/api/routers",
+                  "@/server/*"
+                ],
+                "allowTypeImports": true,
+                "message": "浏览器只允许引用服务端类型；运行期值放共享 contract，服务端实现放 server/functions/API 入口。"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "apps/*/src/server.ts",
+        "apps/*/src/functions/**",
+        "apps/*/src/server/**",
+        "apps/*/src/routes/api/**",
+        "apps/*/src/routes/sitemap[[]*",
+        "apps/*/src/utils/orpc.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": ["apps/*/src/routes/**"],
+      "rules": {
+        "unicorn/filename-case": "off"
+      }
+    },
+    {
+      "files": ["packages/admin/src/env.d.ts"],
+      "rules": {
+        "typescript/consistent-type-definitions": "off"
+      }
+    }
   ]
 }

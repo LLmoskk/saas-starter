@@ -34,6 +34,7 @@ export function createAdminProcedures({ auth }: { auth: AdminAuth }) {
   });
 
   return {
+    publicProcedure: o,
     createContext: ({ req }: { req: Request }) => createAdminContext({ req, auth }),
     adminProcedure,
     desktopWriteProcedure,

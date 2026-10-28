@@ -12,7 +12,8 @@ import { listUsers, getUserDetail, setUserDisabled } from "./users";
  * `{ ...createAdminRouter({ auth }).router, payments, blog }`。
  */
 export function createAdminRouter({ auth }: { auth: AdminAuth }) {
-  const { createContext, adminProcedure, desktopWriteProcedure } = createAdminProcedures({ auth });
+  const { createContext, publicProcedure, adminProcedure, desktopWriteProcedure } =
+    createAdminProcedures({ auth });
 
   const router = {
     healthCheck: adminProcedure.handler(() => "OK"),
@@ -49,5 +50,5 @@ export function createAdminRouter({ auth }: { auth: AdminAuth }) {
     },
   };
 
-  return { router, createContext, adminProcedure, desktopWriteProcedure };
+  return { router, createContext, publicProcedure, adminProcedure, desktopWriteProcedure };
 }

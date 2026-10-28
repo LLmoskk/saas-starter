@@ -11,7 +11,13 @@ loadEnvFile(resolveEnvProfileFromProcess(), import.meta.dirname);
 export default defineConfig(({ command, isPreview }) => ({
   server: { port: 3001 },
   resolve: { tsconfigPaths: true },
-  define: { "import.meta.env.VITE_BUILD_VERSION": JSON.stringify(buildVersion) },
+  define: {
+    "import.meta.env.VITE_BUILD_VERSION": JSON.stringify(buildVersion),
+    "import.meta.env.VITE_SITE_URL": JSON.stringify(
+      new URL(process.env.VITE_SITE_URL ?? process.env.BETTER_AUTH_URL ?? "http://localhost:3001")
+        .origin,
+    ),
+  },
   plugins: [
     buildVersionPlugin(buildVersion),
     paraglideVitePlugin({

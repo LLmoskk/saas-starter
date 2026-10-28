@@ -6,10 +6,20 @@ import { join, resolve } from "node:path";
 import { parseEnv } from "node:util";
 import { WORKER_RUNTIME_SECRET_NAMES } from "../packages/env/src/worker-env.ts";
 
-const [action, profile] = process.argv.slice(2);
-if (!["sync", "deploy"].includes(action) || !["prod", "preview"].includes(profile)) {
-  throw new Error("Usage: node scripts/cloudflare.mjs <sync|deploy> <prod|preview>");
+const [action, profile, selectedApp] = process.argv.slice(2);
+if (
+  !["sync", "deploy"].includes(action) ||
+  !["prod", "preview"].includes(profile) ||
+  (selectedApp !== undefined && !["web", "admin"].includes(selectedApp))
+) {
+  throw new Error("Usage: node scripts/cloudflare.mjs <sync|deploy> <prod|preview> [web|admin]");
 }
+if (profile === "prod" && !process.env.GITHUB_ACTIONS) {
+  throw new Error(
+    "Production changes run through GitHub Actions; use Preview for local deployments",
+  );
+}
+const apps = selectedApp ? [selectedApp] : ["web", "admin"];
 const root = resolve(import.meta.dirname, "..");
 const values = parseEnv(readFileSync(resolve(root, `apps/web/env.${profile}`), "utf8"));
 const mode = profile === "preview" ? "preview" : "production";
@@ -38,8 +48,9 @@ function run(args, cwd, input) {
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(`Cloudflare command failed (${result.status})`);
 }
+run(["exec", "tsx", "scripts/check-env.ts"], root);
 const targets = new Map();
-for (const app of ["web", "admin"]) {
+for (const app of apps) {
   const cwd = resolve(root, `apps/${app}`);
   const { default: configure } = await import(
     pathToFileURL(resolve(cwd, "cloudflare.config.ts")).href
@@ -63,13 +74,24 @@ for (const app of ["web", "admin"]) {
 }
 const directory = mkdtempSync(join(tmpdir(), "starter-cf-secrets-"));
 try {
-  for (const app of ["web", "admin"]) {
+  for (const app of apps) {
     const cwd = resolve(root, `apps/${app}`);
     const target = targets.get(app);
     const file = join(directory, `${app}.json`);
     if (action === "deploy") {
       writeFileSync(file, JSON.stringify(secrets), { mode: 0o600 });
       run(["exec", "vite", "build", "--mode", mode], cwd);
+      if (profile === "prod") {
+        const result = spawnSync(
+          "gh",
+          ["api", `repos/${process.env.GITHUB_REPOSITORY}/branches/main`, "--jq", ".commit.sha"],
+          { cwd: root, encoding: "utf8" },
+        );
+        if (result.error) throw result.error;
+        if (result.status !== 0 || result.stdout.trim() !== process.env.GITHUB_SHA) {
+          throw new Error("Superseded by a newer main commit; no deployment was performed");
+        }
+      }
       run(
         [
           "exec",

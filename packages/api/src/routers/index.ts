@@ -1,3 +1,4 @@
+import { services } from "@starter/env/server";
 import type { RouterClient } from "@orpc/server";
 import { db } from "@starter/db";
 import { payment, subscription } from "@starter/db/schema/payment";
@@ -7,6 +8,12 @@ import { createCheckout, products } from "@starter/auth/payments";
 import { protectedProcedure, publicProcedure } from "../index";
 export const appRouter = {
   health: publicProcedure.handler(() => "OK"),
+  features: publicProcedure.handler(() => ({
+    google: Boolean(services.google),
+    turnstileSiteKey: services.turnstile?.siteKey ?? null,
+    payments: Boolean(services.payments),
+    email: Boolean(services.email),
+  })),
   me: protectedProcedure.handler(({ context }) => context.session.user),
   products: publicProcedure.handler(() => products),
   payments: protectedProcedure.handler(({ context }) =>

@@ -245,29 +245,6 @@
     }
   }
 
-  .admin-dialog {
-    width: min(28rem, calc(100vw - 2rem));
-    max-width: none;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--foreground);
-    margin: auto;
-  }
-
-  .admin-dialog::backdrop {
-    background: rgb(0 0 0 / 0.65);
-    backdrop-filter: blur(3px);
-  }
-
-  .admin-dialog-card {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-    background: var(--card);
-    box-shadow: var(--elevation-dialog);
-    padding: 20px;
-  }
-
   .admin-toast {
     border: 1px solid var(--border) !important;
     background: var(--card) !important;

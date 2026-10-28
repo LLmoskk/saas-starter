@@ -1,4 +1,4 @@
-import { env } from "@starter/env/server";
+import { env, services } from "@starter/env/server";
 import Cloudflare from "cloudflare";
 
 type Email = {
@@ -11,16 +11,13 @@ type Email = {
 
 // ponytail: REST keeps the same transport in Workers and local Node development.
 export async function sendEmail(input: Email) {
-  const accountId = env.CLOUDFLARE_EMAIL_ACCOUNT_ID;
-  const apiToken = env.CLOUDFLARE_EMAIL_API_TOKEN;
-  if (!accountId || !apiToken || !env.EMAIL_FROM_ADDRESS) {
-    throw new Error("Cloudflare email is not configured");
-  }
+  const config = services.email;
+  if (!config) throw new Error("Email is not enabled");
 
-  const client = new Cloudflare({ apiToken, maxRetries: 0, timeout: 15_000 });
+  const client = new Cloudflare({ apiToken: config.apiToken, maxRetries: 0, timeout: 15_000 });
   const result = await client.emailSending.send({
-    account_id: accountId,
-    from: { address: env.EMAIL_FROM_ADDRESS, name: env.EMAIL_FROM_NAME },
+    account_id: config.accountId,
+    from: { address: config.from, name: env.EMAIL_FROM_NAME },
     to: input.to,
     subject: input.subject,
     text: input.text,

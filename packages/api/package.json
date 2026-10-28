@@ -10,6 +10,7 @@
     "@orpc/server": "catalog:",
     "@starter/auth": "workspace:*",
     "@starter/db": "workspace:*",
+    "@starter/env": "workspace:*",
     "drizzle-orm": "^0.45.4",
     "zod": "catalog:"
   }

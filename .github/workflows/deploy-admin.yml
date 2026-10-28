@@ -1,0 +1,38 @@
+name: Deploy Admin
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/admin/**"
+      - "packages/**"
+      - "scripts/cloudflare.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "tsconfig.json"
+      - "turbo.json"
+      - ".npmrc"
+      - ".oxlintrc.json"
+      - ".oxfmtrc.json"
+      - ".github/workflows/check.yml"
+      - ".github/workflows/deploy-admin.yml"
+      - ".github/workflows/deploy-service.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-admin
+  cancel-in-progress: false
+
+jobs:
+  check:
+    uses: ./.github/workflows/check.yml
+  deploy:
+    needs: check
+    uses: ./.github/workflows/deploy-service.yml
+    with:
+      target: admin
+    secrets: inherit

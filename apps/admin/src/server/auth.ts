@@ -5,7 +5,7 @@ import {
 } from "@starter/admin/server-config";
 import { db } from "@starter/db";
 import * as schema from "@starter/db/schema/auth";
-import { env } from "@starter/env/server";
+import { services } from "@starter/env/server";
 import { APIError } from "better-auth/api";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -18,9 +18,7 @@ export const adminAuth = betterAuth({
   secret: resolveAdminAuthSecret(),
   baseURL,
   trustedOrigins: [baseURL],
-  socialProviders: {
-    google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET },
-  },
+  socialProviders: services.google ? { google: services.google } : {},
   advanced: { cookiePrefix: "starter-admin" },
   databaseHooks: {
     user: {

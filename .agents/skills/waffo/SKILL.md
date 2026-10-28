@@ -26,14 +26,14 @@ Waffo Pancake is a merchant-of-record payment platform. Use it when your project
 
 ### Example Use Cases
 
-| Project Type | Payment Model | Products to Create |
-|---|---|---|
-| AI Skills marketplace | Per-download + Pro subscription | 1 one-time product ($0.99/download) + 2 subscription products (monthly/yearly) |
-| Online course platform | One-time purchase per course | 1 one-time product per course ($29–$199) |
-| SaaS tool (Starter/Pro/Enterprise) | Subscription tiers | 3 subscription products with a product group for plan switching |
-| Design template shop | One-time per template | 1 one-time product per template |
-| API service with usage credits | Credit packs + subscription | 1 one-time product per credit pack + subscription for monthly quota |
-| Newsletter / community | Membership subscription | 1 monthly + 1 yearly subscription product |
+| Project Type                       | Payment Model                   | Products to Create                                                             |
+| ---------------------------------- | ------------------------------- | ------------------------------------------------------------------------------ |
+| AI Skills marketplace              | Per-download + Pro subscription | 1 one-time product ($0.99/download) + 2 subscription products (monthly/yearly) |
+| Online course platform             | One-time purchase per course    | 1 one-time product per course ($29–$199)                                       |
+| SaaS tool (Starter/Pro/Enterprise) | Subscription tiers              | 3 subscription products with a product group for plan switching                |
+| Design template shop               | One-time per template           | 1 one-time product per template                                                |
+| API service with usage credits     | Credit packs + subscription     | 1 one-time product per credit pack + subscription for monthly quota            |
+| Newsletter / community             | Membership subscription         | 1 monthly + 1 yearly subscription product                                      |
 
 ---
 
@@ -102,7 +102,7 @@ const { product: yearly } = await client.subscriptionProducts.create({
 });
 
 console.log("Monthly Product ID:", monthly.id); // Save this
-console.log("Yearly Product ID:", yearly.id);   // Save this
+console.log("Yearly Product ID:", yearly.id); // Save this
 
 // 3. Create a checkout session
 const session = await client.checkout.createSession({
@@ -140,23 +140,27 @@ const session = await client.checkout.createSession({
 The private key is RSA PEM format. Multiple approaches for environment variables:
 
 **Option A: Escaped newlines**
+
 ```
 WAFFO_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEv...\n-----END PRIVATE KEY-----"
 ```
 
 **Option B: Base64 encode the entire PEM (recommended for CI/CD)**
+
 ```bash
 # Encode
 cat private.pem | base64 | tr -d '\n'
 # Set env var
 WAFFO_PRIVATE_KEY_BASE64=LS0tLS1CRUdJTi...
 ```
+
 ```typescript
 const privateKey = Buffer.from(process.env.WAFFO_PRIVATE_KEY_BASE64!, "base64").toString("utf-8");
 const client = new WaffoPancake({ merchantId, privateKey });
 ```
 
 **Option C: File path (local development)**
+
 ```typescript
 import { readFileSync } from "fs";
 const privateKey = readFileSync("./keys/private.pem", "utf-8");
@@ -169,17 +173,17 @@ The SDK auto-normalizes all formats (PEM headers, raw base64, literal `\n`, Wind
 
 ## Available Resources
 
-| Namespace | Methods | Description |
-|-----------|---------|-------------|
-| `client.auth` | `issueSessionToken()` | Issue buyer session token for checkout |
-| `client.stores` | `create()` `update()` `delete()` | Store management (webhook, notification, checkout settings) |
-| `client.onetimeProducts` | `create()` `update()` `publish()` `updateStatus()` | One-time product CRUD with multi-currency pricing |
-| `client.subscriptionProducts` | `create()` `update()` `publish()` `updateStatus()` | Subscription product CRUD with billing period |
-| `client.subscriptionProductGroups` | `create()` `update()` `delete()` `publish()` | Product groups for shared trial and plan switching |
-| `client.orders` | `cancelSubscription()` | Cancel subscription (pending→canceled, active→canceling) |
-| `client.checkout` | `createSession()` | Create checkout session, returns `checkoutUrl` |
-| `client.graphql` | `query<T>()` | Typed GraphQL queries (read-only) |
-| `client.webhooks` | `verify<T>()` | Webhook signature verification |
+| Namespace                          | Methods                                            | Description                                                 |
+| ---------------------------------- | -------------------------------------------------- | ----------------------------------------------------------- |
+| `client.auth`                      | `issueSessionToken()`                              | Issue buyer session token for checkout                      |
+| `client.stores`                    | `create()` `update()` `delete()`                   | Store management (webhook, notification, checkout settings) |
+| `client.onetimeProducts`           | `create()` `update()` `publish()` `updateStatus()` | One-time product CRUD with multi-currency pricing           |
+| `client.subscriptionProducts`      | `create()` `update()` `publish()` `updateStatus()` | Subscription product CRUD with billing period               |
+| `client.subscriptionProductGroups` | `create()` `update()` `delete()` `publish()`       | Product groups for shared trial and plan switching          |
+| `client.orders`                    | `cancelSubscription()`                             | Cancel subscription (pending→canceled, active→canceling)    |
+| `client.checkout`                  | `createSession()`                                  | Create checkout session, returns `checkoutUrl`              |
+| `client.graphql`                   | `query<T>()`                                       | Typed GraphQL queries (read-only)                           |
+| `client.webhooks`                  | `verify<T>()`                                      | Webhook signature verification                              |
 
 ---
 
@@ -289,17 +293,17 @@ Creates a payment page. Redirect the customer to `checkoutUrl`.
 ```typescript
 const session = await client.checkout.createSession({
   productId: "product_id",
-  productType: "onetime",     // "onetime" | "subscription"
+  productType: "onetime", // "onetime" | "subscription"
   currency: "USD",
-  buyerEmail: "buyer@example.com",           // optional, pre-fills email
-  successUrl: "https://example.com/thanks",  // redirect after payment
-  metadata: { orderId: "internal-123" },     // custom key-value pairs
+  buyerEmail: "buyer@example.com", // optional, pre-fills email
+  successUrl: "https://example.com/thanks", // redirect after payment
+  metadata: { orderId: "internal-123" }, // custom key-value pairs
   // Optional overrides:
   priceSnapshot: { amount: 19.99, taxIncluded: true, taxCategory: "saas" }, // dynamic pricing
   billingDetail: { country: "US", isBusiness: false },
-  expiresInSeconds: 3600,     // default: 2700 (45 minutes)
-  withTrial: true,            // for subscriptions with trial
-  darkMode: true,             // true=dark / false=light / omit=store default
+  expiresInSeconds: 3600, // default: 2700 (45 minutes)
+  withTrial: true, // for subscriptions with trial
+  darkMode: true, // true=dark / false=light / omit=store default
 });
 
 // session.checkoutUrl  — redirect customer here
@@ -309,17 +313,17 @@ const session = await client.checkout.createSession({
 
 **Parameter priority:**
 
-| Parameter | Purpose | Notes |
-|-----------|---------|-------|
-| `priceSnapshot` | Override product price (dynamic pricing) | Highest priority — ignores product's set price |
-| `currency` | Specify checkout currency | Required |
-| `buyerEmail` | Pre-fill consumer email | Optional |
-| `billingDetail` | Pre-fill billing info | Optional |
-| `successUrl` | Redirect after payment | Overrides product-level successUrl |
-| `metadata` | Custom key-value pairs | Passed through to webhook `event.data` |
-| `withTrial` | Enable trial period | Overrides product-level trial settings |
-| `expiresInSeconds` | Session expiration | Default 2700 (45 min), max 7 days |
-| `darkMode` | Checkout dark mode | `true`=dark / `false`=light / omit=store default |
+| Parameter          | Purpose                                  | Notes                                            |
+| ------------------ | ---------------------------------------- | ------------------------------------------------ |
+| `priceSnapshot`    | Override product price (dynamic pricing) | Highest priority — ignores product's set price   |
+| `currency`         | Specify checkout currency                | Required                                         |
+| `buyerEmail`       | Pre-fill consumer email                  | Optional                                         |
+| `billingDetail`    | Pre-fill billing info                    | Optional                                         |
+| `successUrl`       | Redirect after payment                   | Overrides product-level successUrl               |
+| `metadata`         | Custom key-value pairs                   | Passed through to webhook `event.data`           |
+| `withTrial`        | Enable trial period                      | Overrides product-level trial settings           |
+| `expiresInSeconds` | Session expiration                       | Default 2700 (45 min), max 7 days                |
+| `darkMode`         | Checkout dark mode                       | `true`=dark / `false`=light / omit=store default |
 
 ### Cancel Subscription
 
@@ -445,34 +449,34 @@ verifyWebhook(body, sig, { toleranceMs: 600000 });
 
 ### Webhook Event Types
 
-| Event | Trigger |
-|-------|---------|
-| `order.completed` | One-time payment succeeded |
-| `subscription.activated` | First subscription payment succeeded |
-| `subscription.payment_succeeded` | Renewal payment succeeded |
-| `subscription.canceling` | Buyer initiated cancel (active until period end) |
-| `subscription.uncanceled` | Buyer withdrew cancellation |
-| `subscription.plan_changed` | Plan changed (upgrade/downgrade) |
-| `subscription.canceled` | Subscription fully terminated |
-| `subscription.past_due` | Renewal payment failed |
-| `refund.succeeded` | Refund completed |
-| `refund.failed` | Refund failed |
+| Event                            | Trigger                                          |
+| -------------------------------- | ------------------------------------------------ |
+| `order.completed`                | One-time payment succeeded                       |
+| `subscription.activated`         | First subscription payment succeeded             |
+| `subscription.payment_succeeded` | Renewal payment succeeded                        |
+| `subscription.canceling`         | Buyer initiated cancel (active until period end) |
+| `subscription.uncanceled`        | Buyer withdrew cancellation                      |
+| `subscription.plan_changed`      | Plan changed (upgrade/downgrade)                 |
+| `subscription.canceled`          | Subscription fully terminated                    |
+| `subscription.past_due`          | Renewal payment failed                           |
+| `refund.succeeded`               | Refund completed                                 |
+| `refund.failed`                  | Refund failed                                    |
 
 ### Webhook Event Shape
 
 ```typescript
 interface WebhookEvent {
-  id: string;           // Delivery ID (use for idempotent dedup)
-  timestamp: string;    // ISO 8601 UTC
+  id: string; // Delivery ID (use for idempotent dedup)
+  timestamp: string; // ISO 8601 UTC
   eventType: string;
-  eventId: string;      // Business event ID (payment/order ID)
+  eventId: string; // Business event ID (payment/order ID)
   storeId: string;
   mode: "test" | "prod";
   data: {
     orderId: string;
     buyerEmail: string;
     currency: string;
-    amount: number;     // display amount (for example 9.99 USD)
+    amount: number; // display amount (for example 9.99 USD)
     taxAmount: number;
     productName: string;
   };
@@ -530,14 +534,14 @@ To list webhooks, use the GraphQL `Store.storeWebhooks` field — it is the only
 
 ## Common Gotchas
 
-| Gotcha | Why it breaks | Fix |
-|--------|---------------|-----|
-| Reading webhook body as JSON | `request.json()` re-serializes; signature fails | Use `request.text()` (App Router/Hono) or `express.raw()` (Express) |
-| Using localtunnel for webhooks | Strips custom HTTP headers; `X-Waffo-Signature` never arrives | Use `ngrok http 3000` |
-| Forgetting `.publish()` | Products created in test env by default; prod checkout sessions fail silently | Call `.publish()` before going live |
-| Accessing `result` instead of `result.data` in GraphQL | GraphQL returns `{ data: T, errors?: [...] }` | Destructure: `const stores = result.data?.stores ?? []` |
-| Using `$id: ID!` in GraphQL variables | Backend uses `String!` not `ID!`; wrong type silently returns null | Always declare ID variables as `$id: String!` |
-| `productIds` in group update is full replacement | Replaces entire list, does not append | Pass complete desired list every time |
+| Gotcha                                                 | Why it breaks                                                                 | Fix                                                                 |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Reading webhook body as JSON                           | `request.json()` re-serializes; signature fails                               | Use `request.text()` (App Router/Hono) or `express.raw()` (Express) |
+| Using localtunnel for webhooks                         | Strips custom HTTP headers; `X-Waffo-Signature` never arrives                 | Use `ngrok http 3000`                                               |
+| Forgetting `.publish()`                                | Products created in test env by default; prod checkout sessions fail silently | Call `.publish()` before going live                                 |
+| Accessing `result` instead of `result.data` in GraphQL | GraphQL returns `{ data: T, errors?: [...] }`                                 | Destructure: `const stores = result.data?.stores ?? []`             |
+| Using `$id: ID!` in GraphQL variables                  | Backend uses `String!` not `ID!`; wrong type silently returns null            | Always declare ID variables as `$id: String!`                       |
+| `productIds` in group update is full replacement       | Replaces entire list, does not append                                         | Pass complete desired list every time                               |
 
 ---
 
@@ -550,23 +554,23 @@ try {
   await client.stores.create({ name: "" });
 } catch (err) {
   if (err instanceof WaffoPancakeError) {
-    console.log(err.status);           // HTTP status code
-    console.log(err.errors);           // [{ message, layer }]
-    console.log(err.errors[0].layer);  // "store" | "product" | "order" | ...
+    console.log(err.status); // HTTP status code
+    console.log(err.errors); // [{ message, layer }]
+    console.log(err.errors[0].layer); // "store" | "product" | "order" | ...
   }
 }
 ```
 
 Errors ordered by call stack depth: `errors[0]` = deepest layer (root cause), `errors[n]` = outermost.
 
-| Status | Cause | Fix |
-|--------|-------|-----|
-| 400 | Invalid request body | Check required fields and types |
-| 401 | Bad signature or expired token | Verify API key and private key match |
-| 403 | `prodEnabled=false` | Complete KYB review in dashboard |
-| 403 | Product not found or not accessible | Check the product belongs to the current merchant and environment |
-| 409 | Idempotency conflict or duplicate nickname | Wait and retry, or use unique nickname |
-| 429 | Rate limited | Back off and retry |
+| Status | Cause                                      | Fix                                                               |
+| ------ | ------------------------------------------ | ----------------------------------------------------------------- |
+| 400    | Invalid request body                       | Check required fields and types                                   |
+| 401    | Bad signature or expired token             | Verify API key and private key match                              |
+| 403    | `prodEnabled=false`                        | Complete KYB review in dashboard                                  |
+| 403    | Product not found or not accessible        | Check the product belongs to the current merchant and environment |
+| 409    | Idempotency conflict or duplicate nickname | Wait and retry, or use unique nickname                            |
+| 429    | Rate limited                               | Back off and retry                                                |
 
 ---
 
@@ -596,13 +600,13 @@ Errors ordered by call stack depth: `errors[0]` = deepest layer (root cause), `e
 
 ## Data Conventions
 
-| Type | Format | Example |
-|------|--------|---------|
-| Amounts | Display amount string | `"29.00"` for USD |
-| Currency | ISO 4217 | `USD`, `EUR`, `JPY` |
-| Timestamps | ISO 8601 UTC | `2026-01-23T00:00:00.000Z` |
-| IDs | `{PREFIX}_{base62}` | `STO_xxx`, `PROD_xxx`, `ORD_xxx` |
-| Checkout Session ID | `cs_` + UUID | `cs_550e8400-...` |
+| Type                | Format                | Example                          |
+| ------------------- | --------------------- | -------------------------------- |
+| Amounts             | Display amount string | `"29.00"` for USD                |
+| Currency            | ISO 4217              | `USD`, `EUR`, `JPY`              |
+| Timestamps          | ISO 8601 UTC          | `2026-01-23T00:00:00.000Z`       |
+| IDs                 | `{PREFIX}_{base62}`   | `STO_xxx`, `PROD_xxx`, `ORD_xxx` |
+| Checkout Session ID | `cs_` + UUID          | `cs_550e8400-...`                |
 
 ---
 
@@ -610,30 +614,31 @@ Errors ordered by call stack depth: `errors[0]` = deepest layer (root cause), `e
 
 The Dashboard supports English, Chinese, and Japanese. When referencing a Dashboard location, use this mapping.
 
-| English | 中文 | 日本語 |
-|---------|------|--------|
-| Home | 首页 | ホーム |
-| Products | 产品 | 商品 |
-| Customers | 客户 | 顧客 |
-| Analytics | 分析 | 分析 |
-| Payments | 付款 | 支払い |
-| Subscriptions | 订阅 | サブスクリプション |
-| Revenue | 收入 | 収益 |
-| API & Development | API 与开发 | API と開発 |
-| Settings | 设置 | 設定 |
-| Merchant ID | 商户 ID | マーチャントID |
-| Store ID | 店铺 ID | ストアID |
-| API Key | API 密钥 | APIキー |
-| Private Key | 私钥 | 秘密鍵 |
-| Test Mode | 测试模式 | テストモード |
-| Live Mode | 生产模式 | 本番モード |
-| One-time | 一次性 | 単発 |
-| Subscription | 订阅 | サブスクリプション |
-| Active | 生效中 | 有効 |
-| Canceled | 已取消 | キャンセル済み |
-| Completed | 已完成 | 完了 |
+| English           | 中文       | 日本語             |
+| ----------------- | ---------- | ------------------ |
+| Home              | 首页       | ホーム             |
+| Products          | 产品       | 商品               |
+| Customers         | 客户       | 顧客               |
+| Analytics         | 分析       | 分析               |
+| Payments          | 付款       | 支払い             |
+| Subscriptions     | 订阅       | サブスクリプション |
+| Revenue           | 收入       | 収益               |
+| API & Development | API 与开发 | API と開発         |
+| Settings          | 设置       | 設定               |
+| Merchant ID       | 商户 ID    | マーチャントID     |
+| Store ID          | 店铺 ID    | ストアID           |
+| API Key           | API 密钥   | APIキー            |
+| Private Key       | 私钥       | 秘密鍵             |
+| Test Mode         | 测试模式   | テストモード       |
+| Live Mode         | 生产模式   | 本番モード         |
+| One-time          | 一次性     | 単発               |
+| Subscription      | 订阅       | サブスクリプション |
+| Active            | 生效中     | 有効               |
+| Canceled          | 已取消     | キャンセル済み     |
+| Completed         | 已完成     | 完了               |
 
 **Where to find IDs:**
+
 - `WAFFO_MERCHANT_ID` → Dashboard → API & Development (API 与开发) → the "Create an API Key" section → first row above the key list, with a copy button. It is **not** at the top of the page and the section heading does not mention it
 - `Store ID` → Dashboard → Settings (设置) → Store Profile (店铺资料)
 - `Product ID` → Dashboard → Products (产品) → click product → shown in URL and detail page
@@ -645,21 +650,21 @@ The Dashboard supports English, Chinese, and Japanese. When referencing a Dashbo
 
 ### Successful Payments
 
-| Card | Type |
-|------|------|
-| `4576 7500 0000 0110` | Visa Credit |
+| Card                  | Type              |
+| --------------------- | ----------------- |
+| `4576 7500 0000 0110` | Visa Credit       |
 | `2226 9000 0000 0110` | Mastercard Credit |
-| `4001 7000 0000 0110` | Visa Debit |
-| `2226 9300 0000 0110` | Mastercard Debit |
+| `4001 7000 0000 0110` | Visa Debit        |
+| `2226 9300 0000 0110` | Mastercard Debit  |
 
 ### Declined Payments
 
-| Card | Type |
-|------|------|
-| `4576 7500 0000 0220` | Visa Credit |
+| Card                  | Type              |
+| --------------------- | ----------------- |
+| `4576 7500 0000 0220` | Visa Credit       |
 | `2226 9000 0000 0220` | Mastercard Credit |
-| `4001 7000 0000 0220` | Visa Debit |
-| `2226 9300 0000 0220` | Mastercard Debit |
+| `4001 7000 0000 0220` | Visa Debit        |
+| `2226 9300 0000 0220` | Mastercard Debit  |
 
 Any future expiry. Any CVC.
 
@@ -682,14 +687,14 @@ ngrok http 3000
 
 ## Product Model Decision Table
 
-| Situation | Model |
-|-----------|-------|
-| Fixed public price | Product price set on the product |
-| Runtime-calculated amount (overage, credits) | Checkout session with `priceSnapshot` |
-| Recurring plan | Subscription product |
-| Multiple subscription tiers | One subscription product per tier + product group |
-| Setup fee or credits top-up | One-time product |
-| Overage charge for a subscription customer | One-time product with dynamic `priceSnapshot` |
+| Situation                                    | Model                                             |
+| -------------------------------------------- | ------------------------------------------------- |
+| Fixed public price                           | Product price set on the product                  |
+| Runtime-calculated amount (overage, credits) | Checkout session with `priceSnapshot`             |
+| Recurring plan                               | Subscription product                              |
+| Multiple subscription tiers                  | One subscription product per tier + product group |
+| Setup fee or credits top-up                  | One-time product                                  |
+| Overage charge for a subscription customer   | One-time product with dynamic `priceSnapshot`     |
 
 ---
 

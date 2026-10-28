@@ -1,3 +1,4 @@
+import { services } from "@starter/env/server";
 import { createAdminRouter, recordAdminAudit } from "@starter/admin/server";
 import { db } from "@starter/db";
 import { blogPost } from "@starter/db/schema/blog";
@@ -34,6 +35,10 @@ const postInput = z.object({
  */
 export const adminRouter = {
   ...core.router,
+  features: core.publicProcedure.handler(() => ({
+    google: Boolean(services.google),
+    storage: Boolean(services.storage),
+  })),
   payments: {
     list: core.adminProcedure.handler(() =>
       db.select().from(payment).orderBy(desc(payment.updatedAt)).limit(100),

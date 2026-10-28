@@ -1,24 +1,22 @@
 import { db } from "@starter/db";
 import { payment, subscription, webhookEvent } from "@starter/db/schema/payment";
 import { user } from "@starter/db/schema/auth";
-import { env } from "@starter/env/server";
+import { env, services } from "@starter/env/server";
 import { ChangeTiming, WaffoPancake, WebhookEventType, type WebhookEvent } from "@waffo/pancake-ts";
 import { and, eq, inArray } from "drizzle-orm";
-import { z } from "zod";
 import { OPEN_SUBSCRIPTION_STATUSES, WAFFO_CONSUMER_PORTAL_URL } from "./payment-contract";
 
-const productSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  type: z.enum(["onetime", "subscription"]),
-});
-export const products = z.array(productSchema).parse(JSON.parse(env.WAFFO_PRODUCTS));
-export const waffoClient = new WaffoPancake({
-  merchantId: env.WAFFO_MERCHANT_ID,
-  privateKey: env.WAFFO_PRIVATE_KEY,
-  environment: env.WAFFO_ENVIRONMENT,
-});
+export const products = services.payments?.products ?? [];
+function paymentClient() {
+  if (!services.payments) throw new Error("Payments are not enabled");
+  return new WaffoPancake({
+    merchantId: services.payments.merchantId,
+    privateKey: services.payments.privateKey,
+    environment: env.WAFFO_ENVIRONMENT,
+  });
+}
 export async function createCheckout(userId: string, email: string, productId: string) {
+  const waffoClient = paymentClient();
   const product = products.find((x) => x.id === productId);
   if (!product) throw new Error("Unknown product");
   const openSubscriptions =
@@ -47,7 +45,7 @@ export async function createCheckout(userId: string, email: string, productId: s
     productId: product.id,
     currency: "USD",
     buyerIdentity: userId,
-    successUrl: env.WAFFO_SUCCESS_URL,
+    successUrl: services.payments!.successUrl,
     metadata: { userId, productId: product.id },
     orderMerchantExternalId: `checkout-${crypto.randomUUID()}`,
   };

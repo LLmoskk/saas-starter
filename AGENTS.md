@@ -1,3 +1,23 @@
 使用中文回答。
 
-这是自用 SaaS 项目模板。新项目应先修改品牌、环境变量、商品和权益实现。每次编码任务遵循 `.agents/skills/ponytail/SKILL.md`。涉及 Waffo 时先读 `.agents/skills/waffo/SKILL.md`。优先使用 type 而非 interface；文件名使用 kebab-case。业务数据走 oRPC + TanStack Query。只在用户明确要求时运行自动化测试。
+## 开发边界
+
+- 每次编码遵循 `.agents/skills/ponytail/SKILL.md`。先读相关入口、共享实现与调用方，再修改；命名、type 优先、浏览器 import 边界和语义颜色由 `pnpm check` 强制。
+- 保留任务范围外的现有行为。UI、SEO、重构默认保留示例素材、默认值、模型、费用与权益、生成后去向和操作流程。确需改变时，说明它与本次目标的关系；无法从需求确定的产品取舍才询问用户，普通实现自行完成。
+- 同类入口先查共享实现与所有调用方，再确定修改范围；共享修复覆盖受影响入口，单页需求保持单页范围。开始和交付前检查 diff，保留用户及其他任务的修改，只提交本次范围。
+- 涉及竞品流程、模型能力或供应商集成，先核实实际输入、输出与能力约束，再实现。优先接入现有流程；技能中的示例方案不自动成为本项目的产品决策。
+
+## UI 与业务
+
+- 修改 UI 前读取 `DESIGN.md`；前后台复用 `@starter/ui`，沿用语义 token 和交互形式。通过布局、控件、预览和状态变化表达信息；操作名、字段、费用和状态简短清晰，不用解释性小字补救交互。
+- 业务数据走 oRPC + TanStack Query 的生成选项与 query key；浏览器运行期常量放进不依赖服务端实现的共享模块。
+- 修改服务配置、功能开关、翻译或 SEO 时读取 `docs/configuration.md`。
+- 涉及 Waffo 先读 `.agents/skills/waffo/SKILL.md`，项目支付实现与配置查 `docs/waffo.md`。
+- 修改共享组件、认证、请求、国际化或交付前审查时，读取 `CODING_STANDARDS.md`，核对行为保留、同类入口、国际化与副作用边界。
+
+## 验证与交付
+
+- 默认由用户手动验收；只有用户明确要求时才运行自动化测试或浏览器自动验收。静态检查按需使用 `pnpm check`、`pnpm check-types`，如实报告执行范围。这一测试约定优先于 ponytail 的自检要求。
+- 开发、构建和发布流程默认不触发真实扣费、AI 生成、发信或生产资源验收。新增付费资源时明确触发点、规格、并发、释放条件和费用上限；执行真实付费验收前取得对应授权。
+- 发布与环境操作先读 `docs/cloudflare.md`。生产通过推送 main 触发 `deploy-web.yml`、`deploy-admin.yml`，按变更独立发布；本机仅发布 Preview。新项目先运行 `pnpm setup:github` 配置 production Environment。schema 不自动同步；配置变更同步 GitHub Secret。用户要求上线后等待本次涉及的 Workflow 成功，再报告已上线。
+- 宣传视频工程、调研下载和临时检查产物放在仓库外；项目实际引用的成品素材才进入仓库。交付说明具体改动、实际检查与未完成项。

@@ -13,6 +13,8 @@ export const getRouter = () => {
   return router;
 };
 declare module "@tanstack/react-router" {
+  // Router registration requires declaration merging.
+  // oxlint-disable-next-line typescript/consistent-type-definitions
   interface Register {
     router: ReturnType<typeof getRouter>;
   }

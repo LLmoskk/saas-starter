@@ -1,33 +1,35 @@
-// Shared required bindings; each app declares its own additional required secrets.
-export const WORKER_REQUIRED_SECRET_NAMES = [
-  "BETTER_AUTH_SECRET",
-  "BETTER_AUTH_URL",
+// Only authentication is required for every deployment. Optional services validate when enabled.
+export const WORKER_REQUIRED_SECRET_NAMES = ["BETTER_AUTH_SECRET", "BETTER_AUTH_URL"] as const;
+
+export const WORKER_RUNTIME_SECRET_NAMES = [
+  ...WORKER_REQUIRED_SECRET_NAMES,
+  "GOOGLE_ENABLED",
+  "TURNSTILE_ENABLED",
+  "PAYMENTS_ENABLED",
+  "STORAGE_ENABLED",
+  "EMAIL_ENABLED",
   "GOOGLE_CLIENT_ID",
   "GOOGLE_CLIENT_SECRET",
   "TURNSTILE_SECRET",
   "TURNSTILE_HOSTNAMES",
-  "ADMIN_EMAILS",
+  "VITE_TURNSTILE_SITE_KEY",
   "WAFFO_MERCHANT_ID",
   "WAFFO_PRIVATE_KEY",
   "WAFFO_STORE_ID",
   "WAFFO_SUCCESS_URL",
   "WAFFO_PRODUCTS",
+  "WAFFO_ENVIRONMENT",
   "R2_ACCOUNT_ID",
   "R2_ACCESS_KEY_ID",
   "R2_SECRET_ACCESS_KEY",
   "R2_BUCKET_NAME",
   "R2_PUBLIC_BASE_URL",
-] as const;
-
-// Sync allowlist includes optional services; absent values are not uploaded.
-export const WORKER_RUNTIME_SECRET_NAMES = [
-  ...WORKER_REQUIRED_SECRET_NAMES,
   "CLOUDFLARE_EMAIL_ACCOUNT_ID",
   "CLOUDFLARE_EMAIL_API_TOKEN",
   "EMAIL_FROM_ADDRESS",
   "EMAIL_FROM_NAME",
+  "ADMIN_EMAILS",
   "ADMIN_BETTER_AUTH_URL",
   "ADMIN_BETTER_AUTH_SECRET",
-  "WAFFO_ENVIRONMENT",
   "SENTRY_DSN",
 ] as const;

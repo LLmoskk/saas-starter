@@ -1,8 +1,9 @@
 import { processWaffoEvent } from "@starter/auth/payments";
-import { env } from "@starter/env/server";
+import { env, services } from "@starter/env/server";
 import { verifyWebhook, type WebhookEventData } from "@waffo/pancake-ts";
 import { createFileRoute } from "@tanstack/react-router";
 async function handle(request: Request) {
+  if (!services.payments) return new Response("Payments are not enabled", { status: 503 });
   const body = await request.text();
   let event;
   try {

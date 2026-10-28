@@ -1,3 +1,4 @@
+import { locales } from "@/paraglide/runtime";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@starter/db";
 import { blogPost } from "@starter/db/schema/blog";
@@ -18,18 +19,12 @@ export const listBlogPosts = createServerFn({ method: "GET" }).handler(() =>
     .orderBy(desc(blogPost.publishedAt)),
 );
 export const getBlogPost = createServerFn({ method: "GET" })
-  .validator(z.object({ slug: z.string(), locale: z.enum(["en", "zh-CN"]) }))
+  .validator(z.object({ slug: z.string(), locale: z.enum(locales) }))
   .handler(async ({ data }) => {
-    const [post] = await db
+    const posts = await db
       .select()
       .from(blogPost)
-      .where(
-        and(
-          eq(blogPost.slug, data.slug),
-          eq(blogPost.locale, data.locale),
-          eq(blogPost.status, "published"),
-        ),
-      )
-      .limit(1);
-    return post ?? null;
+      .where(and(eq(blogPost.slug, data.slug), eq(blogPost.status, "published")));
+    const post = posts.find((post) => post.locale === data.locale);
+    return post ? { ...post, availableLocales: posts.map((post) => post.locale) } : null;
   });
