@@ -1,5 +1,7 @@
 使用中文回答。
 
+新项目初始化或从其他项目沉淀规则时读取 `docs/agents/template-maintenance.md`；模板规则随仓库继承，产品决策留在项目自己的领域文档。
+
 ## 开发边界
 
 - 每次编码遵循 `.agents/skills/ponytail/SKILL.md`。先读相关入口、共享实现与调用方，再修改；命名、type 优先、浏览器 import 边界和语义颜色由 `pnpm check` 强制。
@@ -9,11 +11,15 @@
 
 ## UI 与业务
 
-- 修改 UI 前读取 `DESIGN.md`；前后台复用 `@starter/ui`，沿用语义 token 和交互形式。通过布局、控件、预览和状态变化表达信息；操作名、字段、费用和状态简短清晰，不用解释性小字补救交互。
+- 修改 UI 前读取 `DESIGN.md`；原子组件优先使用 shadcn，通过 `@starter/ui` 在前后台共享；选择顺序与存量兼容见 `DESIGN.md`，沿用语义 token 和交互形式。业务样式使用 Tailwind 工具类；样式边界见 `DESIGN.md`。通过布局、控件、预览和状态变化表达信息；操作名、字段、费用和状态简短清晰，不用解释性小字补救交互。
 - 业务数据走 oRPC + TanStack Query 的生成选项与 query key；浏览器运行期常量放进不依赖服务端实现的共享模块。
 - 修改服务配置、功能开关、翻译或 SEO 时读取 `docs/configuration.md`。
 - 涉及 Waffo 先读 `.agents/skills/waffo/SKILL.md`，项目支付实现与配置查 `docs/waffo.md`。
-- 修改共享组件、认证、请求、国际化或交付前审查时，读取 `CODING_STANDARDS.md`，核对行为保留、同类入口、国际化与副作用边界。
+- 修改状态归属、共享组件、认证、请求、国际化或交付前审查时，读取 `CODING_STANDARDS.md`，核对行为保留、同类入口、国际化与副作用边界。
+
+## 领域与任务
+
+- 探索业务代码前按 `docs/agents/domain.md` 查阅术语和架构决策；操作需求与任务时读取 `docs/agents/issue-tracker.md`，分诊读取 `docs/agents/triage-labels.md`。
 
 ## 验证与交付
 

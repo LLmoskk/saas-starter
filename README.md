@@ -54,6 +54,10 @@ packages/
 
 后台 oRPC 路由位于 `apps/admin/src/server`。两个应用共享数据库，但后台使用独立的认证地址、密钥与 Cookie 前缀。
 
+## 新项目与 Agent 规则
+
+从 main 创建新项目时保留仓库内规则、技能、检查脚本与 CI，无需再从业务项目搬运 AGENTS。初始化与规则回流按 [模板维护流程](docs/agents/template-maintenance.md) 执行；实现入口在 [AGENTS.md](AGENTS.md)，设计基线在 [DESIGN.md](DESIGN.md)，交付评审见 [CODING_STANDARDS.md](CODING_STANDARDS.md)。
+
 ## 本地启动
 
 准备 Node.js 24、pnpm 11.26.0 和 Docker。

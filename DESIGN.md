@@ -4,7 +4,13 @@
 
 ## 组件
 
-基础控件从 `@starter/ui` 导入：`Button`、`Input`、`Textarea`、`Select`、`Card`、`Dialog`、`ConfirmDialog`。实现位于 `packages/ui/src/`；后台原有 `@starter/admin/ui` 继续转出同一套控件，运营布局组件仍留在 admin 包。
+原子组件优先使用 shadcn，统一沉淀到 `packages/ui` 并经 `@starter/ui` 导出，前后台共享同一实现。选择顺序：已有 shadcn 组件（先用 props、variant 与 size）→ 使用 shadcn CLI 添加缺失组件 → 基于已有原语组合或扩展 → 仍无法覆盖时才写自定义控件。新增弹窗、下拉与菜单复用原语的键盘、焦点和可访问性行为。
+
+模板当前的 `@starter/ui` 是自有实现，尚未完成 shadcn 初始化。首次引入时先配置共享包的 CLI、别名与主题映射，核对生成文件实际位置和导出；不要假设 `components.json`、Base UI 或 Radix 已存在。新增原子能力按 shadcn 路径实现；存量控件保持兼容，在相关任务中逐步迁移，共享 API 变化同步所有调用方，不在业务页面另建平行组件库。
+
+当前基础控件从 `@starter/ui` 导入：`Button`、`Input`、`Textarea`、`Select`、`Card`、`Dialog`、`ConfirmDialog`。实现位于 `packages/ui/src/`；后台原有 `@starter/admin/ui` 继续转出同一套控件，运营布局组件仍留在 admin 包。
+
+以下描述当前兼容实现，迁移时需核对实际组件 API 并保持对应行为：
 
 - Button 默认 `type="button"`，提交表单显式传 `type="submit"`。按钮内容通过 flex 居中，窄屏点击区域至少 44px。
 - Input、Textarea、Select 配合可见 label 使用。Select 保留浏览器原生键盘行为，选项固定时直接复用它；需要搜索或复杂菜单时再选合适的现成组件。
@@ -51,6 +57,15 @@ import { Icon } from "@iconify/react";
 - 标题与正文或控件之间保留间距。窄屏卡片改为单列，表格在自己的容器横向滚动。
 - 工具类承担业务布局，确需共享的样式放在 `@layer components`。不定义 `.grid`、`.flex` 等与 Tailwind 同名的全局类。
 - 焦点保持可见；动效尊重 prefers-reduced-motion。图标按钮提供可访问名称，错误使用文本与语义状态表达。
+
+## 样式实现
+
+- 业务布局、间距、尺寸、排版、状态与响应式直接使用 Tailwind v4 工具类；颜色使用上面的语义角色。参考页面或设计稿决定视觉目标，实现仍使用本项目组件与工具类，不整套搬入参考页面的 CSS 或组件库。
+- 复用控件先使用已有 props、variant 与 size；跨页面一致的控件变化沉淀到 `packages/ui`。页面 className 用于组合布局，控件颜色与交互状态由组件 variant 管理；普通内容容器可以直接使用语义颜色工具类。
+- CSS 文件承载主题、字体声明、第三方样式适配，以及确实需要集中维护的复杂动效和特效。共享组件样式放在 `@layer components`，主题继续使用现有 Tailwind 层级。普通业务布局留在 JSX，避免另一套页面前缀类体系。
+- 新 CSS 文件需在 `scripts/style-policy.json` 中登记精确路径和用途；`pnpm check` 会检查。既有后台与更新提示样式作为兼容例外保留，不代表新页面的默认实现。评审仍需核对主题文件和例外文件有没有混入普通业务样式。
+- 新语义 token 根据实际用途补充到应用主题、共享映射与本文件；涉及品牌或产品视觉取舍且需求不明确时再询问用户。图像、画布、用户选色等内容数据与界面主题分开建模。
+- 设计调整同步实际主题与本文件；保留当前控件 API 和交互基线，除非本次需求明确要求替换。shadcn 组件的具体底层与 API 以项目实际安装和生成结果为准，引用其他项目示例前先核对真实实现。
 
 ## 修改入口
 

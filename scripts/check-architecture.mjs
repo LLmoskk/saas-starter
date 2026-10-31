@@ -1,8 +1,9 @@
 import { readdirSync, readFileSync } from "node:fs";
-import { basename, resolve } from "node:path";
+import { basename, relative, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const errors = [];
+const stylePolicy = JSON.parse(readFileSync(resolve(root, "scripts/style-policy.json"), "utf8"));
 for (const directory of ["apps", "packages"]) {
   for (const path of readdirSync(resolve(root, directory), {
     recursive: true,
@@ -15,6 +16,13 @@ for (const directory of ["apps", "packages"]) {
       file.endsWith("routeTree.gen.ts")
     )
       continue;
+    if (file.endsWith(".css") && file.includes("/src/")) {
+      const reason = stylePolicy[relative(root, file)];
+      if (typeof reason !== "string" || !reason.trim())
+        errors.push(
+          `${file}: business styles use Tailwind; register theme, adapter or complex-effect CSS with a reason in scripts/style-policy.json`,
+        );
+    }
     const source = readFileSync(file, "utf8");
     if (file.includes("/src/routes/") && /\.[cm]?[jt]sx?$/.test(file)) {
       // Router syntax and parameter names are API contracts, not ordinary filenames.
@@ -42,4 +50,6 @@ for (const directory of ["apps", "packages"]) {
   }
 }
 if (errors.length) throw new Error(errors.join("\n"));
-console.log("Architecture checked: route filenames, semantic colors and layout classes");
+console.log(
+  "Architecture checked: route filenames, semantic colors, CSS boundaries and layout classes",
+);

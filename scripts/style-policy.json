@@ -1,0 +1,7 @@
+{
+  "apps/web/src/index.css": "前台主题与应用全局基线；普通页面样式使用 Tailwind。",
+  "apps/admin/src/index.css": "后台主题与应用全局基线。",
+  "packages/ui/src/styles.css": "共享语义 token 到 Tailwind 的映射。",
+  "packages/admin/src/styles/admin.css": "存量运营布局兼容样式；新增业务布局使用 Tailwind。",
+  "apps/web/src/components/app-update-notice.css": "存量更新提示组件兼容样式。"
+}
