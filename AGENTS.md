@@ -11,7 +11,7 @@
 
 ## UI 与业务
 
-- 修改 UI 前读取 `DESIGN.md`；原子组件优先使用 shadcn，通过 `@starter/ui` 在前后台共享；选择顺序与存量兼容见 `DESIGN.md`，沿用语义 token 和交互形式。业务样式使用 Tailwind 工具类；样式边界见 `DESIGN.md`。通过布局、控件、预览和状态变化表达信息；操作名、字段、费用和状态简短清晰，不用解释性小字补救交互。
+- 修改 UI 前读取 `DESIGN.md`；原子组件优先使用 shadcn，通过 `@shadcn/ui` 在前后台共享；选择顺序与存量兼容见 `DESIGN.md`，沿用语义 token 和交互形式。业务样式使用 Tailwind 工具类；样式边界见 `DESIGN.md`。通过布局、控件、预览和状态变化表达信息；操作名、字段、费用和状态简短清晰，不用解释性小字补救交互。
 - 业务数据走 oRPC + TanStack Query 的生成选项与 query key；浏览器运行期常量放进不依赖服务端实现的共享模块。
 - 修改服务配置、功能开关、翻译或 SEO 时读取 `docs/configuration.md`。
 - 涉及 Waffo 先读 `.agents/skills/waffo/SKILL.md`，项目支付实现与配置查 `docs/waffo.md`。

@@ -49,7 +49,7 @@ packages/
   env/          # 环境变量加载与校验
   storage/      # R2 博客图片预签名上传
   config/       # 共享 TypeScript 配置
-  ui/           # 前后台共享控件与语义主题映射
+  ui/           # 前后台shadcn 原子组件与语义主题映射
 ```
 
 后台 oRPC 路由位于 `apps/admin/src/server`。两个应用共享数据库，但后台使用独立的认证地址、密钥与 Cookie 前缀。
@@ -123,4 +123,4 @@ Workflow 已内置，新项目不需要重写发布脚本。首次使用只需�
 
 日常提交并推送 `main`，受影响的 `Deploy Web` / `Deploy Admin` 工作流检查通过后分别发布。生产配置由 GitHub 管理，本机只保留预览发布。CI 不自动同步数据库，也不调用付费业务做验收。配置步骤、Token 权限和重跑方式见 [部署指南](docs/cloudflare.md#github-actions-首次配置)。
 
-UI 修改遵循 [DESIGN.md](DESIGN.md)，基础控件统一从 `@starter/ui` 复用。
+UI 修改遵循 [DESIGN.md](DESIGN.md)，基础控件统一从 `@shadcn/ui` 复用。

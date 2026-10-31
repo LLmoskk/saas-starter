@@ -4,19 +4,24 @@
 
 ## 组件
 
-原子组件优先使用 shadcn，统一沉淀到 `packages/ui` 并经 `@starter/ui` 导出，前后台共享同一实现。选择顺序：已有 shadcn 组件（先用 props、variant 与 size）→ 使用 shadcn CLI 添加缺失组件 → 基于已有原语组合或扩展 → 仍无法覆盖时才写自定义控件。新增弹窗、下拉与菜单复用原语的键盘、焦点和可访问性行为。
+原子组件优先使用 shadcn，统一沉淀到 `packages/ui` 并经 `@shadcn/ui` 导出，前后台共享同一实现。选择顺序：已有 shadcn 组件（先用 props、variant 与 size）→ 使用 shadcn CLI 添加缺失组件 → 基于已有原语组合或扩展 → 仍无法覆盖时才写自定义控件。新增弹窗、下拉与菜单复用原语的键盘、焦点和可访问性行为。
 
-模板当前的 `@starter/ui` 是自有实现，尚未完成 shadcn 初始化。首次引入时先配置共享包的 CLI、别名与主题映射，核对生成文件实际位置和导出；不要假设 `components.json`、Base UI 或 Radix 已存在。新增原子能力按 shadcn 路径实现；存量控件保持兼容，在相关任务中逐步迁移，共享 API 变化同步所有调用方，不在业务页面另建平行组件库。
+共享包名称为 `@shadcn/ui`，这是本仓库的 workspace 包。组件由 shadcn CLI 的 `base-vega`（Base UI）注册表生成，源码位于 `packages/ui/src/components/`。应用与共享包均已配置 `components.json`，使用子路径导入：
 
-当前基础控件从 `@starter/ui` 导入：`Button`、`Input`、`Textarea`、`Select`、`Card`、`Dialog`、`ConfirmDialog`。实现位于 `packages/ui/src/`；后台原有 `@starter/admin/ui` 继续转出同一套控件，运营布局组件仍留在 admin 包。
+```tsx
+import { Button } from "@shadcn/ui/components/button";
+import { Card, CardContent } from "@shadcn/ui/components/card";
+import { cn } from "@shadcn/ui/lib/utils";
+```
 
-以下描述当前兼容实现，迁移时需核对实际组件 API 并保持对应行为：
+新增组件运行 `pnpm dlx shadcn@latest add <name> -c apps/web`；后台使用 `-c apps/admin`。CLI 会按别名将原子组件写入共享包，业务组合留在应用。后台 `@starter/admin/ui` 保留运营布局和业务组合，基础控件转出同一份 shadcn 实现。
 
-- Button 默认 `type="button"`，提交表单显式传 `type="submit"`。按钮内容通过 flex 居中，窄屏点击区域至少 44px。
-- Input、Textarea、Select 配合可见 label 使用。Select 保留浏览器原生键盘行为，选项固定时直接复用它；需要搜索或复杂菜单时再选合适的现成组件。
-- Card 只提供表面、边框与内边距。相邻 Card 的间距由父布局的 gap 表达，避免嵌套卡片额外累加 margin。
-- Dialog 使用原生 dialog 的模态、焦点管理和 Escape 行为，内容超高时内部滚动；标题与关闭按钮有可访问名称。前台传入当前语言的 closeLabel。
-- 用户操作产生的结果靠近对应操作展示。使用已有组件的状态、详情和弹层承载信息，不添加解释性副标题补救布局。
+- Button 默认 `type="button"`，提交表单显式传 `type="submit"`；移动端常用按钮和输入高度至少 44px。渲染链接时使用 Base UI 的 `render` 并传 `nativeButton={false}`。
+- Input、Textarea、NativeSelect 配合可见 label 使用。简单原生表单使用 NativeSelect / NativeSelectOption；自定义下拉使用 Select、SelectTrigger、SelectValue、SelectContent、SelectItem，并通过 Root 的 `items` 提供 value 与标签映射。
+- Card 使用 CardHeader / CardContent / CardFooter 组合；页面语义通过外层 main、section 或 article 表达，不传旧的 `as` 属性。
+- Dialog 使用 Root、Content、Header、Title 等原语组合，模态、焦点与 Escape 由 Base UI 管理。内容超高时内部滚动；多语言页面关闭按钮由调用方提供翻译后的名称。ConfirmDialog 是基于这些原语的后台业务确认壳。
+- 共享工具函数统一转出 `cn` 包，与 CLI 生成组件一致。主题和动效通过共享 `styles.css` 引入，应用只定义自己的主题值。
+- 用户操作产生的结果靠近对应操作展示。使用组件状态、详情和弹层承载信息，不添加解释性副标题补救布局。
 
 ## 图标
 

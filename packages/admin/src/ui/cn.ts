@@ -1,1 +1,1 @@
-export { cn } from "@starter/ui";
+export { cn } from "@shadcn/ui/lib/utils";

@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getAdminConfig } from "../config";
 import { PAGE_SIZE_OPTIONS } from "../pagination";
 import { Button } from "./button";
-import { Select } from "./input";
+import { NativeSelect, NativeSelectOption } from "./input";
 
 /**
  * 列表页脚：条数摘要 + 页大小选择 + 上一页/下一页。
@@ -33,18 +33,18 @@ export function ListPager({
         {pager.summary(total, page, totalPages)}
       </span>
       <div className="flex items-center gap-2">
-        <Select
+        <NativeSelect
           value={String(pageSize)}
           aria-label={pager.pageSize(pageSize)}
           className="h-11 w-24 shrink-0 md:h-9"
           onChange={(event) => onPageSizeChange(Number(event.target.value))}
         >
           {PAGE_SIZE_OPTIONS.map((size) => (
-            <option key={size} value={size}>
+            <NativeSelectOption key={size} value={size}>
               {pager.pageSize(size)}
-            </option>
+            </NativeSelectOption>
           ))}
-        </Select>
+        </NativeSelect>
         <Button
           variant="outline"
           size="icon"

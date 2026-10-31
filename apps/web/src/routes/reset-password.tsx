@@ -1,6 +1,8 @@
 import { seoHead } from "@/utils/seo";
 import { m } from "@/paraglide/messages";
-import { Card, Button, Input } from "@starter/ui";
+import { Card, CardContent } from "@shadcn/ui/components/card";
+import { Button } from "@shadcn/ui/components/button";
+import { Input } from "@shadcn/ui/components/input";
 import { createFileRoute } from "@tanstack/react-router";
 import { createAuthClient } from "better-auth/react";
 import { useState } from "react";
@@ -15,24 +17,28 @@ function Reset() {
     setMessage(result.error?.message ?? m["auth.resetComplete"]());
   }
   return (
-    <Card as="main">
-      <h1>{m["auth.reset"]()}</h1>
-      <form className="stack" onSubmit={submit}>
-        <label className="field">
-          {m["auth.newPassword"]()}
-          <Input
-            type="password"
-            minLength={8}
-            required
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
-        <Button type="submit">{m["common.save"]()}</Button>
-      </form>
-      {message ? <p role="status">{message}</p> : null}
-    </Card>
+    <main>
+      <Card>
+        <CardContent>
+          <h1>{m["auth.reset"]()}</h1>
+          <form className="stack" onSubmit={submit}>
+            <label className="field">
+              {m["auth.newPassword"]()}
+              <Input
+                type="password"
+                minLength={8}
+                required
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+            <Button type="submit">{m["common.save"]()}</Button>
+          </form>
+          {message ? <p role="status">{message}</p> : null}
+        </CardContent>
+      </Card>
+    </main>
   );
 }
 export const Route = createFileRoute("/reset-password")({

@@ -1,5 +1,13 @@
 import { seoHead } from "@/utils/seo";
-import { Card, Button, Dialog } from "@starter/ui";
+import { Card, CardContent } from "@shadcn/ui/components/card";
+import { Button } from "@shadcn/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@shadcn/ui/components/dialog";
 import { Link } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -32,115 +40,140 @@ function App() {
     ) ?? [];
   if (me.isError)
     return (
-      <Card as="main">
-        <Link to="/login">{m["auth.signin"]()}</Link>
-      </Card>
+      <main>
+        <Card>
+          <CardContent>
+            <Link to="/login">{m["auth.signin"]()}</Link>
+          </CardContent>
+        </Card>
+      </main>
     );
   return (
     <main className="grid gap-6">
       <Card>
-        <h1>{m["app.title"]()}</h1>
-        <p>{m["app.body"]()}</p>
-        <p>{me.data?.email}</p>
+        <CardContent>
+          <h1>{m["app.title"]()}</h1>
+          <p>{m["app.body"]()}</p>
+          <p>{me.data?.email}</p>
+        </CardContent>
       </Card>
       {features.data?.payments ? (
         <>
           <Card>
-            <h2>{m["app.products"]()}</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {products.data?.map((product) => {
-                const current =
-                  product.type === "subscription" &&
-                  openSubscriptions.some((item) => item.productId === product.id);
-                return (
-                  <Card as="div" key={product.id}>
-                    <h3>{product.name}</h3>
-                    <Button
-                      disabled={
-                        current ||
-                        checkout.isPending ||
-                        (product.type === "subscription" && subscriptions.isPending)
-                      }
-                      onClick={() => checkout.mutate({ productId: product.id })}
-                    >
-                      {current
-                        ? m["app.currentPlan"]()
-                        : product.type === "subscription" && openSubscriptions.length
-                          ? m["app.changePlan"]()
-                          : m["app.checkout"]()}
-                    </Button>
-                  </Card>
-                );
-              })}
-            </div>
-            {checkout.error ? <p role="alert">{checkout.error.message}</p> : null}
-            <Dialog
-              open={Boolean(checkout.data && !checkout.isPending)}
-              title={
-                checkout.data?.kind === "plan-change"
-                  ? m["app.planChangeReady"]()
-                  : checkout.data?.kind === "portal"
-                    ? m["app.manageSubscription"]()
-                    : m["app.checkoutReady"]()
-              }
-              closeLabel={m["app.cancel"]()}
-              onClose={() => checkout.reset()}
-            >
-              <div className="flex flex-wrap gap-3">
-                {checkout.data ? (
-                  <a
-                    className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 font-semibold text-primary-foreground"
-                    href={checkout.data.checkoutUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => checkout.reset()}
-                  >
-                    {m["app.continue"]()}
-                  </a>
-                ) : null}
-                <Button variant="outline" onClick={() => checkout.reset()}>
-                  {m["app.cancel"]()}
-                </Button>
+            <CardContent>
+              <h2>{m["app.products"]()}</h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {products.data?.map((product) => {
+                  const current =
+                    product.type === "subscription" &&
+                    openSubscriptions.some((item) => item.productId === product.id);
+                  return (
+                    <Card key={product.id}>
+                      <CardContent>
+                        <h3>{product.name}</h3>
+                        <Button
+                          disabled={
+                            current ||
+                            checkout.isPending ||
+                            (product.type === "subscription" && subscriptions.isPending)
+                          }
+                          onClick={() => checkout.mutate({ productId: product.id })}
+                        >
+                          {current
+                            ? m["app.currentPlan"]()
+                            : product.type === "subscription" && openSubscriptions.length
+                              ? m["app.changePlan"]()
+                              : m["app.checkout"]()}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
-            </Dialog>
+              {checkout.error ? <p role="alert">{checkout.error.message}</p> : null}
+              <Dialog
+                open={Boolean(checkout.data && !checkout.isPending)}
+                onOpenChange={(open) => {
+                  if (!open) checkout.reset();
+                }}
+              >
+                <DialogContent showCloseButton={false}>
+                  <DialogHeader>
+                    <DialogTitle>
+                      {checkout.data?.kind === "plan-change"
+                        ? m["app.planChangeReady"]()
+                        : checkout.data?.kind === "portal"
+                          ? m["app.manageSubscription"]()
+                          : m["app.checkoutReady"]()}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <DialogClose
+                    aria-label={m["app.cancel"]()}
+                    className="absolute top-2 right-2 flex size-11 items-center justify-center"
+                  >
+                    ×
+                  </DialogClose>
+                  <div className="flex flex-wrap gap-3">
+                    {checkout.data ? (
+                      <a
+                        className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 font-semibold text-primary-foreground"
+                        href={checkout.data.checkoutUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => checkout.reset()}
+                      >
+                        {m["app.continue"]()}
+                      </a>
+                    ) : null}
+                    <Button variant="outline" onClick={() => checkout.reset()}>
+                      {m["app.cancel"]()}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </CardContent>
           </Card>
           <Card>
-            <h2>{m["app.subscriptions"]()}</h2>
-            <div className="table-wrap">
-              <table>
-                <tbody>
-                  {subscriptions.data?.map((item) => (
-                    <tr key={item.orderId}>
-                      <td>{item.productName}</td>
-                      <td>{item.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p>
-              <a href={WAFFO_CONSUMER_PORTAL_URL} target="_blank" rel="noopener noreferrer">
-                {m["app.manageSubscription"]()}
-              </a>
-            </p>
+            <CardContent>
+              <h2>{m["app.subscriptions"]()}</h2>
+              <div className="table-wrap">
+                <table>
+                  <tbody>
+                    {subscriptions.data?.map((item) => (
+                      <tr key={item.orderId}>
+                        <td>{item.productName}</td>
+                        <td>{item.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                <a href={WAFFO_CONSUMER_PORTAL_URL} target="_blank" rel="noopener noreferrer">
+                  {m["app.manageSubscription"]()}
+                </a>
+              </p>
+            </CardContent>
           </Card>
           <Card>
-            <h2>{m["app.payments"]()}</h2>
-            <div className="table-wrap">
-              <table>
-                <tbody>
-                  {payments.data?.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.productName}</td>
-                      <td>{item.status}</td>
-                      <td>
-                        {item.amount} {item.currency}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <CardContent>
+              <h2>{m["app.payments"]()}</h2>
+              <div className="table-wrap">
+                <table>
+                  <tbody>
+                    {payments.data?.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.productName}</td>
+                        <td>{item.status}</td>
+                        <td>
+                          {item.amount} {item.currency}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
           </Card>
         </>
       ) : null}

@@ -1,3 +1,8 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
 @source "./**/*.{ts,tsx}";
 
 @theme inline {
@@ -17,6 +22,8 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
+  --color-input: var(--input);
+  --color-overlay: var(--overlay);
   --color-ring: var(--ring);
   --color-raised: var(--raised);
   --color-primary-line: var(--primary-line);
@@ -24,28 +31,4 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 2px);
-}
-
-@layer components {
-  .ui-dialog {
-    width: min(28rem, calc(100vw - 2rem));
-    max-height: calc(100dvh - 2rem);
-    overflow-y: auto;
-    margin: auto;
-    padding: 0;
-    border: 0;
-    border-radius: var(--radius-xl);
-    background: var(--card);
-    color: var(--foreground);
-  }
-  .ui-dialog::backdrop {
-    background: var(--overlay, rgb(0 0 0 / 0.65));
-    backdrop-filter: blur(3px);
-  }
-  .ui-dialog-card {
-    padding: 20px;
-    border: 1px solid var(--border);
-    border-radius: inherit;
-    box-shadow: var(--elevation-dialog);
-  }
 }

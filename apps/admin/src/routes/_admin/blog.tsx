@@ -5,7 +5,8 @@ import {
   PageHeader,
   Panel,
   Section,
-  Select,
+  NativeSelect,
+  NativeSelectOption,
   StatusChip,
   Textarea,
 } from "@starter/admin/ui";
@@ -173,27 +174,27 @@ function BlogPage() {
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="admin-label">语言</span>
-              <Select
+              <NativeSelect
                 value={form.locale}
                 onChange={(event) =>
                   setForm({ ...form, locale: event.target.value as BlogForm["locale"] })
                 }
               >
-                <option value="en">English</option>
-                <option value="zh-CN">中文</option>
-              </Select>
+                <NativeSelectOption value="en">English</NativeSelectOption>
+                <NativeSelectOption value="zh-CN">中文</NativeSelectOption>
+              </NativeSelect>
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="admin-label">状态</span>
-              <Select
+              <NativeSelect
                 value={form.status}
                 onChange={(event) =>
                   setForm({ ...form, status: event.target.value as BlogForm["status"] })
                 }
               >
-                <option value="draft">草稿</option>
-                <option value="published">已发布</option>
-              </Select>
+                <NativeSelectOption value="draft">草稿</NativeSelectOption>
+                <NativeSelectOption value="published">已发布</NativeSelectOption>
+              </NativeSelect>
             </label>
           </div>
 

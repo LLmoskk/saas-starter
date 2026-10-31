@@ -1,5 +1,5 @@
 import { seoHead } from "@/utils/seo";
-import { Card } from "@starter/ui";
+import { Card, CardContent } from "@shadcn/ui/components/card";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { listBlogPosts } from "@/functions/blog";
 import { m } from "@/paraglide/messages";
@@ -13,22 +13,26 @@ export const Route = createFileRoute("/blog/")({
 function Blog() {
   const posts = Route.useLoaderData().filter((post) => post.locale === getLocale());
   return (
-    <Card as="main">
-      <h1>{m["blog.title"]()}</h1>
-      {posts.length ? (
-        posts.map((post) => (
-          <article key={post.id}>
-            <h2>
-              <Link to="/blog/$slug" params={{ slug: post.slug }}>
-                {post.title}
-              </Link>
-            </h2>
-            <p>{post.excerpt}</p>
-          </article>
-        ))
-      ) : (
-        <p>{m["blog.empty"]()}</p>
-      )}
-    </Card>
+    <main>
+      <Card>
+        <CardContent>
+          <h1>{m["blog.title"]()}</h1>
+          {posts.length ? (
+            posts.map((post) => (
+              <article key={post.id}>
+                <h2>
+                  <Link to="/blog/$slug" params={{ slug: post.slug }}>
+                    {post.title}
+                  </Link>
+                </h2>
+                <p>{post.excerpt}</p>
+              </article>
+            ))
+          ) : (
+            <p>{m["blog.empty"]()}</p>
+          )}
+        </CardContent>
+      </Card>
+    </main>
   );
 }

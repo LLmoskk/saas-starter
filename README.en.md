@@ -118,4 +118,4 @@ Push `main` to check and deploy affected web/admin services independently. Produ
 
 ## Shared foundations
 
-Use `@starter/ui` for shared web/admin controls and follow [DESIGN.md](DESIGN.md). Local setup supports disabled Google, Turnstile, payments, storage, and email integrations. See [configuration](docs/configuration.md) for feature flags, localized navigation, SEO, and message checks. Dependency installation enables pre-commit checks; run `pnpm setup:local` if Git was initialized afterward.
+Use `@shadcn/ui` for shared web/admin controls and follow [DESIGN.md](DESIGN.md). Local setup supports disabled Google, Turnstile, payments, storage, and email integrations. See [configuration](docs/configuration.md) for feature flags, localized navigation, SEO, and message checks. Dependency installation enables pre-commit checks; run `pnpm setup:local` if Git was initialized afterward.

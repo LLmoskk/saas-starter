@@ -4,7 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { createAuthClient } from "better-auth/react";
 import { Icon } from "@iconify/react";
-import { Button, Card, Input } from "@starter/ui";
+import { Button } from "@shadcn/ui/components/button";
+import { Card, CardContent } from "@shadcn/ui/components/card";
+import { Input } from "@shadcn/ui/components/input";
 import { m } from "@/paraglide/messages";
 import { localizeHref } from "@/paraglide/runtime";
 import { orpc } from "@/utils/orpc";
@@ -122,98 +124,102 @@ function Login() {
     }
   }
   return (
-    <Card as="main" className="mx-auto max-w-md">
-      <h1>{actionLabel}</h1>
-      <form className="stack" onSubmit={submit}>
-        {mode === "signup" ? (
-          <label className="field">
-            {m["auth.name"]()}
-            <Input
-              autoComplete="name"
-              required
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
-          </label>
-        ) : null}
-        <label className="field">
-          {m["auth.email"]()}
-          <Input
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </label>
-        {mode !== "reset" ? (
-          <label className="field">
-            {m["auth.password"]()}
-            <Input
-              type="password"
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              minLength={8}
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-          </label>
-        ) : null}
-        {siteKey ? <Turnstile siteKey={siteKey} onToken={setToken} /> : null}
-        <Button type="submit" disabled={pending || !features.data}>
-          {pending ? m["auth.pending"]() : actionLabel}
-        </Button>
-      </form>
-      {error || features.error ? (
-        <p className="error" role="alert">
-          {error || features.error?.message}
-        </p>
-      ) : null}
-      {features.isError ? (
-        <Button variant="outline" onClick={() => void features.refetch()}>
-          {m["common.retry"]()}
-        </Button>
-      ) : null}
-      {message ? <p role="status">{message}</p> : null}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {(["signin", "signup", ...(features.data?.email ? ["reset" as const] : [])] as const).map(
-          (value) => (
+    <main>
+      <Card className="mx-auto max-w-md">
+        <CardContent>
+          <h1>{actionLabel}</h1>
+          <form className="stack" onSubmit={submit}>
+            {mode === "signup" ? (
+              <label className="field">
+                {m["auth.name"]()}
+                <Input
+                  autoComplete="name"
+                  required
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                />
+              </label>
+            ) : null}
+            <label className="field">
+              {m["auth.email"]()}
+              <Input
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </label>
+            {mode !== "reset" ? (
+              <label className="field">
+                {m["auth.password"]()}
+                <Input
+                  type="password"
+                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                  minLength={8}
+                  required
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+              </label>
+            ) : null}
+            {siteKey ? <Turnstile siteKey={siteKey} onToken={setToken} /> : null}
+            <Button type="submit" disabled={pending || !features.data}>
+              {pending ? m["auth.pending"]() : actionLabel}
+            </Button>
+          </form>
+          {error || features.error ? (
+            <p className="error" role="alert">
+              {error || features.error?.message}
+            </p>
+          ) : null}
+          {features.isError ? (
+            <Button variant="outline" onClick={() => void features.refetch()}>
+              {m["common.retry"]()}
+            </Button>
+          ) : null}
+          {message ? <p role="status">{message}</p> : null}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(
+              ["signin", "signup", ...(features.data?.email ? ["reset" as const] : [])] as const
+            ).map((value) => (
+              <Button
+                key={value}
+                variant={mode === value ? "outline" : "ghost"}
+                disabled={pending}
+                onClick={() => {
+                  setMode(value);
+                  setError("");
+                  setMessage("");
+                }}
+              >
+                {value === "signup"
+                  ? m["auth.signup"]()
+                  : value === "reset"
+                    ? m["auth.reset"]()
+                    : m["auth.signin"]()}
+              </Button>
+            ))}
+          </div>
+          {features.data?.google ? (
             <Button
-              key={value}
-              variant={mode === value ? "outline" : "ghost"}
-              disabled={pending}
-              onClick={() => {
-                setMode(value);
-                setError("");
-                setMessage("");
+              className="mt-4 w-full"
+              variant="outline"
+              onClick={async () => {
+                const result = await authClient.signIn.social({
+                  provider: "google",
+                  callbackURL: localizeHref("/app"),
+                });
+                if (result.error) setError(result.error.message ?? m["auth.failed"]());
               }}
             >
-              {value === "signup"
-                ? m["auth.signup"]()
-                : value === "reset"
-                  ? m["auth.reset"]()
-                  : m["auth.signin"]()}
+              <Icon icon="logos:google-icon" aria-hidden className="size-4" />
+              {m["auth.google"]()}
             </Button>
-          ),
-        )}
-      </div>
-      {features.data?.google ? (
-        <Button
-          className="mt-4 w-full"
-          variant="outline"
-          onClick={async () => {
-            const result = await authClient.signIn.social({
-              provider: "google",
-              callbackURL: localizeHref("/app"),
-            });
-            if (result.error) setError(result.error.message ?? m["auth.failed"]());
-          }}
-        >
-          <Icon icon="logos:google-icon" aria-hidden className="size-4" />
-          {m["auth.google"]()}
-        </Button>
-      ) : null}
-    </Card>
+          ) : null}
+        </CardContent>
+      </Card>
+    </main>
   );
 }
 export const Route = createFileRoute("/login")({

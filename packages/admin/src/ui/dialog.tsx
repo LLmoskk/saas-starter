@@ -1,1 +1,1 @@
-export { Dialog, ConfirmDialog } from "@starter/ui";
+export { ConfirmDialog } from "@shadcn/ui/components/confirm-dialog";

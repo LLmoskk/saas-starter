@@ -1,5 +1,5 @@
 import { seoHead } from "@/utils/seo";
-import { Card } from "@starter/ui";
+import { Card, CardContent } from "@shadcn/ui/components/card";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -25,11 +25,17 @@ export const Route = createFileRoute("/blog/$slug")({
 function Post() {
   const post = Route.useLoaderData();
   return (
-    <Card as="article">
-      <h1>{post.title}</h1>
-      <p className="muted">{post.excerpt}</p>
-      {post.coverUrl ? <img src={post.coverUrl} alt="" loading="lazy" decoding="async" /> : null}
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.markdown}</ReactMarkdown>
-    </Card>
+    <article>
+      <Card>
+        <CardContent>
+          <h1>{post.title}</h1>
+          <p className="muted">{post.excerpt}</p>
+          {post.coverUrl ? (
+            <img src={post.coverUrl} alt="" loading="lazy" decoding="async" />
+          ) : null}
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.markdown}</ReactMarkdown>
+        </CardContent>
+      </Card>
+    </article>
   );
 }

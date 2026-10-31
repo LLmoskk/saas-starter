@@ -8,7 +8,8 @@ import {
   Page,
   PageHeader,
   Panel,
-  Select,
+  NativeSelect,
+  NativeSelectOption,
   StatusChip,
   TableState,
   TableWrap,
@@ -112,7 +113,7 @@ function UsersPage() {
             搜索
           </Button>
         </form>
-        <Select
+        <NativeSelect
           value={search.status ?? "all"}
           aria-label="账户状态"
           className="h-11 w-28 shrink-0 md:h-9"
@@ -120,10 +121,10 @@ function UsersPage() {
             updateSearch({ status: event.target.value as "all" | "active" | "disabled" })
           }
         >
-          <option value="all">全部状态</option>
-          <option value="active">正常</option>
-          <option value="disabled">已禁用</option>
-        </Select>
+          <NativeSelectOption value="all">全部状态</NativeSelectOption>
+          <NativeSelectOption value="active">正常</NativeSelectOption>
+          <NativeSelectOption value="disabled">已禁用</NativeSelectOption>
+        </NativeSelect>
       </div>
 
       <Panel>

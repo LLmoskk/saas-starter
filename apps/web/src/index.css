@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@starter/ui/styles.css";
+@import "@shadcn/ui/styles.css";
 
 :root {
   --background: #f8fafc;
@@ -19,6 +19,7 @@
   --accent-foreground: var(--foreground);
   --destructive: #a92323;
   --border: #d6dce4;
+  --input: var(--border);
   --ring: var(--primary);
   --raised: var(--secondary);
   --primary-line: color-mix(in srgb, var(--primary) 42%, transparent);
