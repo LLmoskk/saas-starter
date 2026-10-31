@@ -13,6 +13,7 @@
     "cf-typegen": "cf workers types --include-runtime=false"
   },
   "dependencies": {
+    "@iconify/react": "^6.0.2",
     "@inlang/paraglide-js": "^2.29.0",
     "@orpc/client": "catalog:",
     "@orpc/server": "catalog:",

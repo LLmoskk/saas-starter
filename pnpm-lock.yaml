@@ -171,6 +171,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@iconify/react':
+        specifier: ^6.0.2
+        version: 6.0.3(react@19.3.1)
       '@inlang/paraglide-js':
         specifier: ^2.29.0
         version: 2.29.0(typescript@7.0.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
@@ -280,6 +283,9 @@ importers:
 
   packages/admin:
     dependencies:
+      '@iconify/react':
+        specifier: ^6.0.2
+        version: 6.0.3(react@19.3.1)
       '@orpc/client':
         specifier: 'catalog:'
         version: 1.15.7(@opentelemetry/api@1.9.1)
@@ -1274,6 +1280,14 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@iconify/react@6.0.3':
+    resolution: {integrity: sha512-2x7gVs+tpUG75aXYo/0c5wPOqrFy75YSGKmuJZyuHyrHMydzXpI/+i9/USIzWXJL9WWc2BCgPVnGY2FhbeiiDQ==}
+    peerDependencies:
+      react: '>=18.0.0'
+
+  '@iconify/types@2.0.0':
+    resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -2369,6 +2383,7 @@ packages:
   '@smithy/core@3.36.0':
     resolution: {integrity: sha512-3hJiwG1F5t1SoXqp/yOCmYXziyx7ZVqF63S5W6YU201e/qwVaHPex+E/3vvyY9a3ORq/b+BydeNZpP2saQ9X2g==}
     engines: {node: '>=18.0.0'}
+    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/credential-provider-imds@4.5.2':
     resolution: {integrity: sha512-A9uSdn72ozbRUSit0eib0TW7nXuNPlaeM0zcGkJ+nE6tFcSDbnmtwoxbTCFBukVQcszDAyvsd7+rTduPTXpygg==}
@@ -4999,6 +5014,13 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.2':
     optional: true
+
+  '@iconify/react@6.0.3(react@19.3.1)':
+    dependencies:
+      '@iconify/types': 2.0.0
+      react: 19.3.1
+
+  '@iconify/types@2.0.0': {}
 
   '@img/colour@1.1.0': {}
 

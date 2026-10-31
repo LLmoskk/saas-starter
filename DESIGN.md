@@ -12,6 +12,23 @@
 - Dialog 使用原生 dialog 的模态、焦点管理和 Escape 行为，内容超高时内部滚动；标题与关闭按钮有可访问名称。前台传入当前语言的 closeLabel。
 - 用户操作产生的结果靠近对应操作展示。使用已有组件的状态、详情和弹层承载信息，不添加解释性副标题补救布局。
 
+## 图标
+
+功能图标统一用 `lucide-react`，继承文字颜色；描边随相邻文字字重取值（常规 1.5、中粗 2、粗体 2.5），同一界面只保留一种描边策略。不用 emoji 充当图标。
+
+品牌与供应商标志用 `@iconify/react`，在调用点直接导入：
+
+```tsx
+import { Icon } from "@iconify/react";
+
+<Icon icon="logos:google-icon" aria-hidden className="size-4" />;
+```
+
+- 图标名的前缀决定图标集：`logos:` 彩色品牌标志，`simple-icons:` 单色品牌标志，`thesvg-color:` 彩色标志，`hugeicons:` 通用图标。
+- 不另接图标库，也不手抄品牌 SVG；需要的品牌在 Iconify 中没有时优先找 `simple-icons:`。
+- 装饰性图标加 `aria-hidden`；纯图标按钮必须提供可访问名称。
+- `@iconify/react` 默认在浏览器里按需从 Iconify 公共 API 拉取图标数据并缓存到 localStorage，首次渲染依赖外网。需要离线或内网可用时，安装对应的 `@iconify-json/<set>` 并在客户端入口调用 `addCollection()` 注册。
+
 ## 主题
 
 前台颜色事实源为 `apps/web/src/index.css`，后台为 `apps/admin/src/index.css` 与 admin 基础主题。共享 Tailwind 映射位于 `packages/ui/src/styles.css`。

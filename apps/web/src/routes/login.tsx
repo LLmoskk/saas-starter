@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { createAuthClient } from "better-auth/react";
+import { Icon } from "@iconify/react";
 import { Button, Card, Input } from "@starter/ui";
 import { m } from "@/paraglide/messages";
 import { localizeHref } from "@/paraglide/runtime";
@@ -208,6 +209,7 @@ function Login() {
             if (result.error) setError(result.error.message ?? m["auth.failed"]());
           }}
         >
+          <Icon icon="logos:google-icon" aria-hidden className="size-4" />
           {m["auth.google"]()}
         </Button>
       ) : null}

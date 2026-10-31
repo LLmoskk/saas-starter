@@ -1,3 +1,4 @@
+import { Icon } from "@iconify/react";
 import { useState } from "react";
 
 import { getAdminConfig } from "../config";
@@ -45,6 +46,7 @@ export function LoginPage({
           disabled={pending || !available}
           onClick={handleSignIn}
         >
+          <Icon icon="logos:google-icon" aria-hidden className="size-4" />
           {!available ? "Google 登录未启用" : pending ? pendingLabel : login.providerLabel}
         </Button>
         {error ? (
