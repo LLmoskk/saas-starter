@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "vite dev",
     "build": "cf build",
+    "build:ci": "vite build --mode production",
     "serve": "vite preview",
-    "check-types": "tsc --noEmit",
+    "check-types": "bun check --no-script",
     "dev:workers": "CLOUDFLARE_BUILD=1 cf dev",
     "deploy:workers": "CLOUDFLARE_BUILD=1 cf deploy",
     "deploy:dry-run": "CLOUDFLARE_BUILD=1 cf deploy --dry-run",

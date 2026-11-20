@@ -16,7 +16,7 @@
   },
   "scripts": {
     "check": "node scripts/check-logic.ts",
-    "check-types": "tsc --noEmit"
+    "check-types": "bun check --no-script"
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",

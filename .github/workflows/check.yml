@@ -30,11 +30,20 @@ jobs:
         with:
           node-version: "24"
           cache: pnpm
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+
+      - uses: actions/cache@v5
+        with:
+          path: .turbo/cache
+          key: ${{ runner.os }}-${{ runner.arch }}-turbo-ci-${{ hashFiles('.bun-version', 'pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-turbo-ci-${{ hashFiles('.bun-version', 'pnpm-lock.yaml') }}-
+
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
-      # Builds generate route trees, Paraglide declarations and Worker types for tsc.
-      - name: Build web without deploying
-        run: pnpm --dir apps/web exec vite build --mode production
-      - name: Build admin without deploying
-        run: pnpm --dir apps/admin exec vite build --mode production
+      # Build generates route trees, Paraglide declarations and Worker types.
+      - name: Build web and admin without deploying
+        run: pnpm exec turbo run build:ci
       - run: pnpm check-types

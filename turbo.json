@@ -1,6 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalDependencies": [".bun-version"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -13,7 +14,15 @@
       "dependsOn": ["^lint"]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": ["^check-types"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "src/routeTree.gen.ts",
+        ".cloudflare/types/**",
+        "src/paraglide/**/*.d.ts",
+        "!src/paraglide/.gitignore",
+        "!project.inlang/.gitignore"
+      ]
     },
     "dev": {
       "cache": false,
@@ -47,6 +56,20 @@
     },
     "db:down": {
       "cache": false
+    },
+    "build:ci": {
+      "dependsOn": ["^build:ci"],
+      "inputs": ["$TURBO_DEFAULT$", "!src/paraglide/**", "!project.inlang/.gitignore"],
+      "outputs": [".cloudflare/types/**", "src/routeTree.gen.ts", "src/paraglide/**"],
+      "env": [
+        "CI",
+        "CF_SEND_TELEMETRY",
+        "GOOGLE_ENABLED",
+        "TURNSTILE_ENABLED",
+        "PAYMENTS_ENABLED",
+        "STORAGE_ENABLED",
+        "EMAIL_ENABLED"
+      ]
     }
   }
 }

@@ -79,7 +79,7 @@ pnpm dev
 
 本地只需数据库与认证配置即可开发基础页面。Google、Turnstile、Waffo、R2 和发信按功能开关启用，关闭时不会初始化客户端；开启时校验完整配置。详见 [功能开关与国际化](docs/configuration.md)。
 
-安装依赖时自动启用 pre-commit；在 git init 之后安装或执行 `pnpm setup:local` 即可。提交前运行 `pnpm check`，CI 另做构建和类型检查，不自动执行业务测试。
+类型检查需要安装 [`.bun-version`](.bun-version) 指定的 Bun 版本。安装依赖时自动启用 pre-commit；在 git init 之后安装或执行 `pnpm setup:local` 即可。提交前运行 `pnpm check`，CI 另做构建和类型检查，不自动执行业务测试。
 
 ## 服务配置
 

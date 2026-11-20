@@ -9,7 +9,7 @@
     "./hooks/*": "./src/hooks/*.ts"
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "bun check --no-script"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
